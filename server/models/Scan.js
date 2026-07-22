@@ -1,4 +1,8 @@
 const mongoose = require('mongoose');
+const HTTP_METHODS = require('../constants/httpMethods');
+const SECURITY_TYPES = require('../constants/securityTypes');
+const { SCAN_STATUS_VALUES, SCAN_STATUS } = require('../constants/scanStatus');
+const { ANALYSIS_STATUS_VALUES, ANALYSIS_STATUS } = require('../constants/analysisStatus');
 
 const ParameterSchema = new mongoose.Schema({
   name: {
@@ -27,7 +31,7 @@ const EndpointSchema = new mongoose.Schema({
   },
   method: {
     type: String,
-    enum: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD'],
+    enum: HTTP_METHODS,
     required: true
   },
   path: {
@@ -53,7 +57,7 @@ const EndpointSchema = new mongoose.Schema({
   },
   securityType: {
     type: String,
-    enum: ['Bearer JWT', 'API Key', 'OAuth2', 'Basic Auth', 'Cookie Auth', 'None'],
+    enum: SECURITY_TYPES,
     default: 'None'
   },
   parameters: [ParameterSchema],
@@ -122,8 +126,13 @@ const ScanSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['pending', 'processing', 'completed', 'failed'],
-    default: 'pending'
+    enum: SCAN_STATUS_VALUES,
+    default: SCAN_STATUS.PENDING
+  },
+  analysisStatus: {
+    type: String,
+    enum: ANALYSIS_STATUS_VALUES,
+    default: ANALYSIS_STATUS.NOT_STARTED
   },
   uploadedAt: {
     type: Date,
