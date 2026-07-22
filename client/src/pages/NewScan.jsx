@@ -3,326 +3,275 @@ import { useNavigate } from 'react-router-dom';
 import { uploadScan, uploadScanFromUrl } from '../services/scanService';
 
 const NewScan = () => {
-  const [activeTab, setActiveTab] = useState('upload'); // 'upload' | 'url'
-  
-  // File upload states
+  const [activeTab, setActiveTab] = useState('upload');
   const [file, setFile] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
-  
-  // URL input states
   const [url, setUrl] = useState('');
-  
-  // General states
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
 
-  // Helper validation: JSON or YAML, and < 10MB
   const validateFile = (selectedFile) => {
     const validExtensions = ['.json', '.yaml', '.yml'];
     const fileName = selectedFile.name.toLowerCase();
     const isValidExt = validExtensions.some(ext => fileName.endsWith(ext));
-    
     if (!isValidExt) {
-      setError('Invalid file type. Only OpenAPI/Swagger specifications in JSON or YAML/YML format are allowed.');
+      setError('Invalid file type. Only JSON or YAML/YML files are allowed.');
       return false;
     }
-    
-    const maxSize = 10 * 1024 * 1024; // 10MB
-    if (selectedFile.size > maxSize) {
+    if (selectedFile.size > 10 * 1024 * 1024) {
       setError('File size exceeds the 10 MB limit.');
       return false;
     }
-    
     return true;
   };
 
-  // Drag and Drop handlers
-  const handleDragOver = (e) => {
-    e.preventDefault();
-    setIsDragging(true);
-  };
-
-  const handleDragLeave = () => {
-    setIsDragging(false);
-  };
-
+  const handleDragOver = (e) => { e.preventDefault(); setIsDragging(true); };
+  const handleDragLeave = () => { setIsDragging(false); };
   const handleDrop = (e) => {
     e.preventDefault();
     setIsDragging(false);
-    setError('');
-    setSuccess('');
-    
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      const droppedFile = e.dataTransfer.files[0];
-      if (validateFile(droppedFile)) {
-        setFile(droppedFile);
-      }
+    setError(''); setSuccess('');
+    if (e.dataTransfer.files?.[0]) {
+      const f = e.dataTransfer.files[0];
+      if (validateFile(f)) setFile(f);
     }
   };
-
   const handleFileSelect = (e) => {
-    setError('');
-    setSuccess('');
-    if (e.target.files && e.target.files[0]) {
-      const selectedFile = e.target.files[0];
-      if (validateFile(selectedFile)) {
-        setFile(selectedFile);
-      }
+    setError(''); setSuccess('');
+    if (e.target.files?.[0]) {
+      const f = e.target.files[0];
+      if (validateFile(f)) setFile(f);
     }
   };
+  const handleBrowseClick = () => { fileInputRef.current?.click(); };
 
-  const handleBrowseClick = () => {
-    fileInputRef.current?.click();
-  };
-
-  // Submit File Upload
   const handleUploadSubmit = async (e) => {
     e.preventDefault();
-    if (!file) {
-      setError('Please select or drag in a specification file first.');
-      return;
-    }
-
-    setLoading(true);
-    setError('');
-    setSuccess('');
-    setUploadProgress(0);
-
+    if (!file) { setError('Please select a specification file first.'); return; }
+    setLoading(true); setError(''); setSuccess(''); setUploadProgress(0);
     try {
       const res = await uploadScan(file, (progressEvent) => {
-        const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-        setUploadProgress(percentCompleted);
+        setUploadProgress(Math.round((progressEvent.loaded * 100) / progressEvent.total));
       });
-
       const scanId = res.data?.scanId || res.scanId;
-      setSuccess('Specification parsed and imported successfully!');
-      setTimeout(() => {
-        navigate(`/scans/${scanId}`);
-      }, 1000);
+      setSuccess('Specification parsed successfully!');
+      setTimeout(() => navigate(`/scans/${scanId}`), 1000);
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to parse and upload specification. Verify it is a valid OpenAPI specification.');
-      setFile(null);
-      setUploadProgress(0);
-    } finally {
-      setLoading(false);
-    }
+      setError(err.response?.data?.message || 'Failed to parse specification.');
+      setFile(null); setUploadProgress(0);
+    } finally { setLoading(false); }
   };
 
-  // Submit URL Import
   const handleUrlSubmit = async (e) => {
     e.preventDefault();
-    if (!url) {
-      setError('Please enter a specification URL.');
-      return;
+    if (!url) { setError('Please enter a specification URL.'); return; }
+    try { new URL(url); } catch (_) {
+      setError('Please enter a valid URL.'); return;
     }
-
-    // Basic format check
-    try {
-      new URL(url);
-    } catch (_) {
-      setError('Please enter a valid absolute URL (e.g. https://petstore.swagger.io/v2/swagger.json).');
-      return;
-    }
-
-    setLoading(true);
-    setError('');
-    setSuccess('');
-
+    setLoading(true); setError(''); setSuccess('');
     try {
       const res = await uploadScanFromUrl(url);
       const scanId = res.data?.scanId || res.scanId;
-      setSuccess('Specification downloaded and parsed successfully!');
-      setTimeout(() => {
-        navigate(`/scans/${scanId}`);
-      }, 1000);
+      setSuccess('Specification imported successfully!');
+      setTimeout(() => navigate(`/scans/${scanId}`), 1000);
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to import specification from URL. Ensure the endpoint is reachable and contains a valid specification.');
-    } finally {
-      setLoading(false);
-    }
+      setError(err.response?.data?.message || 'Failed to import specification from URL.');
+    } finally { setLoading(false); }
   };
 
   return (
-    <div className="max-w-3xl mx-auto px-6 py-12 w-full flex-1 flex flex-col gap-8 justify-center">
-      {/* Title Header */}
-      <div className="text-center space-y-2">
-        <h1 className="text-3xl font-extrabold text-white tracking-wide">New API Scan</h1>
-        <p className="text-[var(--color-text-muted)] text-sm max-w-lg mx-auto">
-          Discover and map endpoints from an OpenAPI or Swagger schema specification.
-        </p>
-      </div>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flex: 1, padding: '48px 24px', width: '100%' }}>
+      <div style={{ width: '100%', maxWidth: '640px' }}>
 
-      {/* Card Wrapper */}
-      <div className="glass-card rounded-2xl shadow-2xl overflow-hidden flex flex-col">
-        {/* Navigation Tabs */}
-        <div className="flex border-b border-[var(--color-border)] bg-[var(--color-bg-dark)]/50">
-          <button
-            type="button"
-            onClick={() => { setActiveTab('upload'); setError(''); setSuccess(''); }}
-            className={`flex-1 py-4 text-center font-semibold text-sm border-b-2 transition-all cursor-pointer ${
-              activeTab === 'upload'
-                ? 'border-[var(--color-primary)] text-white bg-[var(--color-bg-card)]/90'
-                : 'border-transparent text-[var(--color-text-muted)] hover:text-white'
-            }`}
-          >
-            Upload File
-          </button>
-          <button
-            type="button"
-            onClick={() => { setActiveTab('url'); setError(''); setSuccess(''); }}
-            className={`flex-1 py-4 text-center font-semibold text-sm border-b-2 transition-all cursor-pointer ${
-              activeTab === 'url'
-                ? 'border-[var(--color-primary)] text-white bg-[var(--color-bg-card)]/90'
-                : 'border-transparent text-[var(--color-text-muted)] hover:text-white'
-            }`}
-          >
-            Import via URL
-          </button>
+        {/* Title */}
+        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+          <h1 style={{ fontSize: '28px', fontWeight: 800, color: '#ffffff', letterSpacing: '0.5px' }}>New API Scan</h1>
+          <p style={{ color: '#94a3b8', fontSize: '14px', marginTop: '8px' }}>
+            Discover and map endpoints from an OpenAPI or Swagger specification.
+          </p>
         </div>
 
-        <div className="p-6 sm:p-8 flex flex-col gap-6">
-          {/* Alerts */}
-          {error && (
-            <div className="p-4 bg-[var(--color-error)]/10 border border-[var(--color-error)]/30 rounded-xl text-[var(--color-error)] text-sm flex items-start gap-3">
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <div>
-                <p className="font-semibold">Scan Error</p>
-                <p className="mt-1 text-[var(--color-text-muted)] leading-relaxed">{error}</p>
-              </div>
-            </div>
-          )}
-
-          {success && (
-            <div className="p-4 bg-[var(--color-success)]/10 border border-[var(--color-success)]/30 rounded-xl text-[var(--color-success)] text-sm flex items-center gap-3">
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <span>{success}</span>
-            </div>
-          )}
-
-          {/* Upload Specification Tab */}
-          {activeTab === 'upload' && (
-            <form onSubmit={handleUploadSubmit} className="flex flex-col gap-6">
-              {/* Drag Dropzone Area */}
-              <div
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                onDrop={handleDrop}
-                onClick={handleBrowseClick}
-                className={`border-2 border-dashed rounded-2xl p-8 sm:p-10 text-center cursor-pointer transition-all flex flex-col items-center justify-center gap-3 ${
-                  isDragging
-                    ? 'border-[var(--color-primary)] bg-[var(--color-primary)]/10 shadow-lg shadow-[var(--color-primary)]/10'
-                    : 'border-[var(--color-border)] hover:border-[var(--color-primary)]/50 hover:bg-[var(--color-bg-input)]/30'
-                }`}
+        {/* Card */}
+        <div style={{
+          background: 'rgba(17, 24, 39, 0.9)',
+          border: '1px solid rgba(30, 58, 95, 0.6)',
+          borderRadius: '16px',
+          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+          overflow: 'hidden'
+        }}>
+          {/* Tabs */}
+          <div style={{ display: 'flex', borderBottom: '1px solid rgba(30, 58, 95, 0.6)', background: 'rgba(10, 15, 29, 0.5)' }}>
+            {['upload', 'url'].map(tab => (
+              <button
+                key={tab}
+                type="button"
+                onClick={() => { setActiveTab(tab); setError(''); setSuccess(''); }}
+                style={{
+                  flex: 1,
+                  padding: '16px',
+                  textAlign: 'center',
+                  fontWeight: 600,
+                  fontSize: '14px',
+                  border: 'none',
+                  borderBottom: activeTab === tab ? '2px solid #3b82f6' : '2px solid transparent',
+                  color: activeTab === tab ? '#ffffff' : '#94a3b8',
+                  background: activeTab === tab ? 'rgba(17, 24, 39, 0.9)' : 'transparent',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s'
+                }}
               >
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  onChange={handleFileSelect}
-                  accept=".json,.yaml,.yml"
-                  className="hidden"
-                />
-                
-                <div className="text-4xl mb-1">📂</div>
-                <h3 className="text-lg font-semibold text-white">
-                  {file ? file.name : 'Drag & drop specification file here'}
-                </h3>
-                <p className="text-xs text-[var(--color-text-muted)]">
-                  {file 
-                    ? `Size: ${(file.size / 1024).toFixed(1)} KB (Click to replace)` 
-                    : 'Supports JSON, YAML, or YML (Max 10MB)'
-                  }
-                </p>
-                {!file && (
-                  <span
-                    className="mt-2 inline-flex items-center px-4 py-2 bg-[var(--color-bg-input)] text-white text-xs font-semibold rounded-lg border border-[var(--color-border)] hover:border-[var(--color-primary)] transition-all pointer-events-none"
-                  >
-                    Browse Files
-                  </span>
-                )}
-              </div>
+                {tab === 'upload' ? 'Upload File' : 'Import via URL'}
+              </button>
+            ))}
+          </div>
 
-              {/* Progress Bar */}
-              {uploadProgress > 0 && (
-                <div className="flex flex-col gap-2">
-                  <div className="flex items-center justify-between text-xs text-[var(--color-text-muted)]">
-                    <span>Uploading...</span>
-                    <span>{uploadProgress}%</span>
+          {/* Content */}
+          <div style={{ padding: '32px' }}>
+            {/* Alerts */}
+            {error && (
+              <div style={{ marginBottom: '24px', padding: '14px 16px', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: '12px', color: '#ef4444', fontSize: '14px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                <span style={{ fontSize: '18px', lineHeight: 1 }}>⚠️</span>
+                <div>
+                  <p style={{ fontWeight: 600 }}>Scan Error</p>
+                  <p style={{ color: '#94a3b8', marginTop: '4px', lineHeight: 1.5 }}>{error}</p>
+                </div>
+              </div>
+            )}
+            {success && (
+              <div style={{ marginBottom: '24px', padding: '14px 16px', background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: '12px', color: '#10b981', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <span style={{ fontSize: '18px', lineHeight: 1 }}>✅</span>
+                <span>{success}</span>
+              </div>
+            )}
+
+            {/* Upload Tab */}
+            {activeTab === 'upload' && (
+              <form onSubmit={handleUploadSubmit}>
+                {/* Dropzone */}
+                <div
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                  onClick={handleBrowseClick}
+                  style={{
+                    border: isDragging ? '2px dashed #3b82f6' : '2px dashed rgba(30, 58, 95, 0.8)',
+                    borderRadius: '16px',
+                    padding: '48px 24px',
+                    textAlign: 'center',
+                    cursor: 'pointer',
+                    background: isDragging ? 'rgba(59, 130, 246, 0.08)' : 'rgba(30, 41, 59, 0.3)',
+                    transition: 'all 0.2s',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '8px'
+                  }}
+                >
+                  <input type="file" ref={fileInputRef} onChange={handleFileSelect} accept=".json,.yaml,.yml" style={{ display: 'none' }} />
+                  <div style={{ fontSize: '40px', marginBottom: '4px' }}>📂</div>
+                  <h3 style={{ fontSize: '16px', fontWeight: 600, color: '#ffffff' }}>
+                    {file ? file.name : 'Drag & drop specification file here'}
+                  </h3>
+                  <p style={{ fontSize: '13px', color: '#94a3b8' }}>
+                    {file ? `Size: ${(file.size / 1024).toFixed(1)} KB (Click to replace)` : 'Supports JSON, YAML, or YML (Max 10MB)'}
+                  </p>
+                  {!file && (
+                    <span style={{
+                      marginTop: '8px', display: 'inline-block', padding: '8px 16px',
+                      background: '#1e293b', color: '#ffffff', fontSize: '12px', fontWeight: 600,
+                      borderRadius: '8px', border: '1px solid rgba(30, 58, 95, 0.6)', pointerEvents: 'none'
+                    }}>
+                      Browse Files
+                    </span>
+                  )}
+                </div>
+
+                {/* Progress */}
+                {uploadProgress > 0 && (
+                  <div style={{ marginTop: '20px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: '#94a3b8', marginBottom: '6px' }}>
+                      <span>Uploading...</span><span>{uploadProgress}%</span>
+                    </div>
+                    <div style={{ width: '100%', height: '8px', background: '#1e293b', borderRadius: '4px', overflow: 'hidden' }}>
+                      <div style={{ width: `${uploadProgress}%`, height: '100%', background: 'linear-gradient(to right, #3b82f6, #60a5fa)', borderRadius: '4px', transition: 'width 0.3s' }} />
+                    </div>
                   </div>
-                  <div className="w-full bg-[var(--color-bg-input)] rounded-full h-2 overflow-hidden">
-                    <div
-                      className="bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-primary-light)] h-2 rounded-full transition-all duration-300"
-                      style={{ width: `${uploadProgress}%` }}
+                )}
+
+                {/* Submit */}
+                <button
+                  type="submit"
+                  disabled={loading || !file}
+                  style={{
+                    width: '100%', marginTop: '24px', padding: '14px',
+                    background: !file ? '#1e3a5f' : 'linear-gradient(to right, #3b82f6, #60a5fa)',
+                    color: '#ffffff', fontWeight: 600, fontSize: '14px',
+                    border: 'none', borderRadius: '12px', cursor: !file ? 'not-allowed' : 'pointer',
+                    opacity: loading ? 0.5 : 1, transition: 'all 0.2s',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                    boxShadow: file ? '0 4px 15px rgba(59, 130, 246, 0.25)' : 'none'
+                  }}
+                >
+                  {loading ? (
+                    <><div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Parsing Schema...</>
+                  ) : 'Start Scan'}
+                </button>
+              </form>
+            )}
+
+            {/* URL Tab */}
+            {activeTab === 'url' && (
+              <form onSubmit={handleUrlSubmit}>
+                <div style={{ marginBottom: '24px' }}>
+                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px', color: '#94a3b8', marginBottom: '8px' }}>
+                    Specification URL
+                  </label>
+                  <div style={{
+                    display: 'flex', alignItems: 'center', gap: '12px', padding: '0 16px',
+                    background: '#1e293b', border: '1px solid rgba(30, 58, 95, 0.6)',
+                    borderRadius: '12px', transition: 'all 0.2s'
+                  }}>
+                    <span style={{ fontSize: '18px', flexShrink: 0 }}>🔗</span>
+                    <input
+                      type="url"
+                      value={url}
+                      onChange={(e) => setUrl(e.target.value)}
+                      placeholder="https://petstore.swagger.io/v2/swagger.json"
+                      style={{
+                        width: '100%', padding: '14px 0', background: 'transparent',
+                        border: 'none', outline: 'none', color: '#ffffff', fontSize: '14px'
+                      }}
                     />
                   </div>
+                  <p style={{ fontSize: '12px', color: '#94a3b8', marginTop: '8px', lineHeight: 1.5 }}>
+                    Enter an absolute link to a public OpenAPI document (JSON or YAML).
+                  </p>
                 </div>
-              )}
 
-              {/* Submit Button */}
-              <button
-                type="submit"
-                disabled={loading || !file}
-                className="w-full py-3.5 px-4 bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-primary-light)] disabled:from-[var(--color-border)] disabled:to-[var(--color-border)] text-white font-semibold rounded-xl hover:opacity-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-[var(--color-primary)]/20"
-              >
-                {loading ? (
-                  <>
-                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    Parsing Schema...
-                  </>
-                ) : (
-                  'Start Scan'
-                )}
-              </button>
-            </form>
-          )}
-
-          {/* Import via URL Tab */}
-          {activeTab === 'url' && (
-            <form onSubmit={handleUrlSubmit} className="flex flex-col gap-6">
-              <div className="flex flex-col gap-2">
-                <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">
-                  Specification URL
-                </label>
-                <div className="flex items-center gap-3 px-4 bg-[var(--color-bg-input)] border border-[var(--color-border)] rounded-xl focus-within:border-[var(--color-primary)] focus-within:ring-1 focus-within:ring-[var(--color-primary)] transition-all duration-200">
-                  <span className="text-lg shrink-0">🔗</span>
-                  <input
-                    type="url"
-                    value={url}
-                    onChange={(e) => setUrl(e.target.value)}
-                    placeholder="https://petstore.swagger.io/v2/swagger.json"
-                    className="w-full py-3 bg-transparent text-white placeholder-[var(--color-text-muted)] focus:outline-none"
-                  />
-                </div>
-                <p className="text-xs text-[var(--color-text-muted)] leading-relaxed">
-                  Enter an absolute link to a public OpenAPI document (JSON or YAML). The system will fetch and scan the spec securely.
-                </p>
-              </div>
-
-              {/* Submit Button */}
-              <button
-                type="submit"
-                disabled={loading || !url}
-                className="w-full py-3.5 px-4 bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-primary-light)] disabled:from-[var(--color-border)] disabled:to-[var(--color-border)] text-white font-semibold rounded-xl hover:opacity-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-[var(--color-primary)]/20"
-              >
-                {loading ? (
-                  <>
-                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    Downloading Spec...
-                  </>
-                ) : (
-                  'Import Spec'
-                )}
-              </button>
-            </form>
-          )}
+                <button
+                  type="submit"
+                  disabled={loading || !url}
+                  style={{
+                    width: '100%', padding: '14px',
+                    background: !url ? '#1e3a5f' : 'linear-gradient(to right, #3b82f6, #60a5fa)',
+                    color: '#ffffff', fontWeight: 600, fontSize: '14px',
+                    border: 'none', borderRadius: '12px', cursor: !url ? 'not-allowed' : 'pointer',
+                    opacity: loading ? 0.5 : 1, transition: 'all 0.2s',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                    boxShadow: url ? '0 4px 15px rgba(59, 130, 246, 0.25)' : 'none'
+                  }}
+                >
+                  {loading ? (
+                    <><div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Downloading Spec...</>
+                  ) : 'Import Spec'}
+                </button>
+              </form>
+            )}
+          </div>
         </div>
       </div>
     </div>
