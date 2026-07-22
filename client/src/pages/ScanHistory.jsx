@@ -77,7 +77,7 @@ const ScanHistory = () => {
       )}
 
       {/* Main Table Container */}
-      <div className="flex-1 flex flex-col bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-2xl shadow-xl overflow-hidden min-h-0">
+      <div className="flex-1 flex flex-col glass-card rounded-2xl shadow-xl overflow-hidden min-h-0">
         {scans.length === 0 ? (
           <div className="flex-1 flex flex-col items-center justify-center p-12 text-center">
             <div className="w-16 h-16 rounded-full bg-[var(--color-bg-input)] border border-[var(--color-border)] flex items-center justify-center text-2xl mb-4">
@@ -99,20 +99,20 @@ const ScanHistory = () => {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-[var(--color-bg-input)]/30 border-b border-[var(--color-border)]">
-                  <th className="px-6 py-4.5 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">API Title</th>
-                  <th className="px-6 py-4.5 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">Version</th>
-                  <th className="px-6 py-4.5 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">Source</th>
-                  <th className="px-6 py-4.5 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">Location</th>
-                  <th className="px-6 py-4.5 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">Endpoints</th>
-                  <th className="px-6 py-4.5 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">Scanned On</th>
-                  <th className="px-6 py-4.5 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">Status</th>
-                  <th className="px-6 py-4.5 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)] text-right">Actions</th>
+                  <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">API Title</th>
+                  <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">Version</th>
+                  <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">Source</th>
+                  <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">Location</th>
+                  <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">Endpoints</th>
+                  <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">Scanned On</th>
+                  <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">Status</th>
+                  <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)] text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[var(--color-border)]">
                 {scans.map((scan) => (
                   <tr key={scan._id} className="hover:bg-[var(--color-bg-input)]/20 transition-colors">
-                    <td className="px-6 py-4.5">
+                    <td className="px-6 py-4">
                       {scan.status === 'completed' ? (
                         <Link to={`/scans/${scan._id}`} className="font-semibold text-[var(--color-primary-light)] hover:underline truncate max-w-[180px] block">
                           {scan.apiTitle}
@@ -123,10 +123,10 @@ const ScanHistory = () => {
                         </span>
                       )}
                     </td>
-                    <td className="px-6 py-4.5 text-sm text-[var(--color-text)]">
+                    <td className="px-6 py-4 text-sm text-[var(--color-text)]">
                       {scan.status === 'completed' ? `v${scan.apiVersion}` : '—'}
                     </td>
-                    <td className="px-6 py-4.5 text-sm">
+                    <td className="px-6 py-4 text-sm">
                       <span className={`px-2 py-0.5 rounded text-[10px] font-semibold uppercase ${
                         scan.sourceType === 'url' 
                           ? 'bg-purple-500/10 text-purple-400 border border-purple-500/20' 
@@ -135,16 +135,16 @@ const ScanHistory = () => {
                         {scan.sourceType}
                       </span>
                     </td>
-                    <td className="px-6 py-4.5 text-sm text-[var(--color-text-muted)] max-w-[200px] truncate" title={scan.sourceLocation}>
+                    <td className="px-6 py-4 text-sm text-[var(--color-text-muted)] max-w-[200px] truncate" title={scan.sourceLocation}>
                       {scan.sourceLocation}
                     </td>
-                    <td className="px-6 py-4.5 text-sm text-[var(--color-text)]">
+                    <td className="px-6 py-4 text-sm text-[var(--color-text)]">
                       {scan.status === 'completed' ? scan.endpointCount : '0'}
                     </td>
-                    <td className="px-6 py-4.5 text-sm text-[var(--color-text-muted)]">
+                    <td className="px-6 py-4 text-sm text-[var(--color-text-muted)]">
                       {formatDate(scan.uploadedAt)}
                     </td>
-                    <td className="px-6 py-4.5 text-sm">
+                    <td className="px-6 py-4 text-sm">
                       <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium border ${
                         scan.status === 'completed' 
                           ? 'bg-[var(--color-success)]/10 text-[var(--color-success)] border-[var(--color-success)]/20'
@@ -162,7 +162,7 @@ const ScanHistory = () => {
                         {scan.status}
                       </span>
                     </td>
-                    <td className="px-6 py-4.5 text-sm text-right space-x-2">
+                    <td className="px-6 py-4 text-sm text-right space-x-2">
                       {scan.status === 'completed' && (
                         <Link to={`/scans/${scan._id}`} className="px-2.5 py-1.5 bg-[var(--color-bg-input)] hover:bg-[var(--color-primary)] hover:text-white border border-[var(--color-border)] rounded-lg text-xs font-medium text-white transition-all cursor-pointer">
                           View
@@ -186,7 +186,7 @@ const ScanHistory = () => {
       {/* Delete Confirmation Modal */}
       {deleteId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-[var(--color-bg-card)] border border-[var(--color-border)] w-full max-w-md rounded-2xl p-6 shadow-2xl space-y-4">
+          <div className="glass-card w-full max-w-md rounded-2xl p-6 shadow-2xl flex flex-col gap-4">
             <h3 className="text-xl font-bold text-white">Delete Scan Report</h3>
             <p className="text-sm text-[var(--color-text-muted)] leading-relaxed">
               Are you sure you want to delete this scan report? This action is permanent and cannot be undone. All discovered endpoints will be removed from your database inventory.

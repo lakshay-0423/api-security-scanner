@@ -86,21 +86,21 @@ const Dashboard = () => {
       {/* Stats Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
         {/* Total Scans Card */}
-        <div className="bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-2xl p-6 relative overflow-hidden group hover:border-[var(--color-primary)]/40 transition-all duration-300">
+        <div className="glass-card glass-card-hover rounded-2xl p-6 relative overflow-hidden group">
           <p className="text-sm font-medium text-[var(--color-text-muted)] uppercase tracking-wider">Total Scans</p>
           <p className="text-4xl font-extrabold text-white mt-2">{totalScansCount}</p>
           <div className="absolute right-4 bottom-4 text-3xl opacity-10 group-hover:opacity-20 transition-opacity">🔍</div>
         </div>
 
         {/* Total Endpoints Discovered */}
-        <div className="bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-2xl p-6 relative overflow-hidden group hover:border-[var(--color-primary)]/40 transition-all duration-300">
+        <div className="glass-card glass-card-hover rounded-2xl p-6 relative overflow-hidden group">
           <p className="text-sm font-medium text-[var(--color-text-muted)] uppercase tracking-wider">Endpoints Discovered</p>
           <p className="text-4xl font-extrabold text-white mt-2">{totalEndpointsCount}</p>
           <div className="absolute right-4 bottom-4 text-3xl opacity-10 group-hover:opacity-20 transition-opacity">🌐</div>
         </div>
 
         {/* Latest Scan */}
-        <div className="bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-2xl p-6 relative overflow-hidden group hover:border-[var(--color-primary)]/40 transition-all duration-300">
+        <div className="glass-card glass-card-hover rounded-2xl p-6 relative overflow-hidden group">
           <p className="text-sm font-medium text-[var(--color-text-muted)] uppercase tracking-wider">Latest Scan</p>
           {latestScan ? (
             <div className="mt-2.5">
@@ -114,7 +114,7 @@ const Dashboard = () => {
         </div>
 
         {/* Authentication Types Found */}
-        <div className="bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-2xl p-6 relative overflow-hidden group hover:border-[var(--color-primary)]/40 transition-all duration-300">
+        <div className="glass-card glass-card-hover rounded-2xl p-6 relative overflow-hidden group">
           <p className="text-sm font-medium text-[var(--color-text-muted)] uppercase tracking-wider">Auth Schemes Found</p>
           {authTypesFound.length > 0 ? (
             <div className="flex flex-wrap gap-1.5 mt-3 max-h-[52px] overflow-hidden">
@@ -135,7 +135,7 @@ const Dashboard = () => {
       </div>
 
       {/* Main Section */}
-      <div className="flex-1 flex flex-col min-h-0 bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-2xl shadow-xl overflow-hidden">
+      <div className="flex-1 flex flex-col min-h-0 glass-card rounded-2xl shadow-xl overflow-hidden">
         {/* Table Header */}
         <div className="px-6 py-5 border-b border-[var(--color-border)] flex items-center justify-between">
           <h2 className="text-lg font-semibold text-white">Recent Scans</h2>
@@ -168,19 +168,19 @@ const Dashboard = () => {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-[var(--color-bg-input)]/30 border-b border-[var(--color-border)]">
-                  <th className="px-6 py-4.5 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">API Title</th>
-                  <th className="px-6 py-4.5 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">Version</th>
-                  <th className="px-6 py-4.5 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">Endpoints</th>
-                  <th className="px-6 py-4.5 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">Source</th>
-                  <th className="px-6 py-4.5 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">Scan Date</th>
-                  <th className="px-6 py-4.5 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">Status</th>
-                  <th className="px-6 py-4.5 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)] text-right">Action</th>
+                  <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">API Title</th>
+                  <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">Version</th>
+                  <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">Endpoints</th>
+                  <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">Source</th>
+                  <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">Scan Date</th>
+                  <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">Status</th>
+                  <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)] text-right">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[var(--color-border)]">
                 {scans.slice(0, 5).map((scan) => (
                   <tr key={scan._id} className="hover:bg-[var(--color-bg-input)]/20 transition-colors">
-                    <td className="px-6 py-4.5">
+                    <td className="px-6 py-4">
                       {scan.status === 'completed' ? (
                         <Link to={`/scans/${scan._id}`} className="font-semibold text-[var(--color-primary-light)] hover:underline truncate max-w-[200px] block">
                           {scan.apiTitle}
@@ -191,13 +191,13 @@ const Dashboard = () => {
                         </span>
                       )}
                     </td>
-                    <td className="px-6 py-4.5 text-sm text-[var(--color-text)]">
+                    <td className="px-6 py-4 text-sm text-[var(--color-text)]">
                       {scan.status === 'completed' ? `v${scan.apiVersion}` : '—'}
                     </td>
-                    <td className="px-6 py-4.5 text-sm text-[var(--color-text)]">
+                    <td className="px-6 py-4 text-sm text-[var(--color-text)]">
                       {scan.status === 'completed' ? scan.endpointCount : '0'}
                     </td>
-                    <td className="px-6 py-4.5 text-sm">
+                    <td className="px-6 py-4 text-sm">
                       <span className={`px-2 py-0.5 rounded text-[10px] font-semibold uppercase ${
                         scan.sourceType === 'url' 
                           ? 'bg-purple-500/10 text-purple-400 border border-purple-500/20' 
@@ -206,10 +206,10 @@ const Dashboard = () => {
                         {scan.sourceType}
                       </span>
                     </td>
-                    <td className="px-6 py-4.5 text-sm text-[var(--color-text-muted)]">
+                    <td className="px-6 py-4 text-sm text-[var(--color-text-muted)]">
                       {formatDate(scan.uploadedAt)}
                     </td>
-                    <td className="px-6 py-4.5 text-sm">
+                    <td className="px-6 py-4 text-sm">
                       <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium border ${
                         scan.status === 'completed' 
                           ? 'bg-[var(--color-success)]/10 text-[var(--color-success)] border-[var(--color-success)]/20'
@@ -227,7 +227,7 @@ const Dashboard = () => {
                         {scan.status}
                       </span>
                     </td>
-                    <td className="px-6 py-4.5 text-sm text-right">
+                    <td className="px-6 py-4 text-sm text-right">
                       {scan.status === 'completed' && (
                         <Link to={`/scans/${scan._id}`} className="px-3 py-1.5 bg-[var(--color-bg-input)] hover:bg-[var(--color-primary)] hover:text-white border border-[var(--color-border)] rounded-lg text-xs font-medium text-white transition-all cursor-pointer">
                           View Details

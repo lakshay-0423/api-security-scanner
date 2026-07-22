@@ -53,7 +53,7 @@ const Sidebar = () => {
       </div>
 
       {/* Navigation Links */}
-      <nav className="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto">
+      <nav className="flex-1 px-4 py-6 flex flex-col gap-1.5 overflow-y-auto">
         {navItems.map((item) => (
           <NavLink
             key={item.name}
