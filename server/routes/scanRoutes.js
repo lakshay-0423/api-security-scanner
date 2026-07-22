@@ -2,6 +2,11 @@ const express = require('express');
 const multer = require('multer');
 const { protect } = require('../middleware/auth');
 const {
+  validateScanUpload,
+  validateUrlImport,
+  validateObjectId
+} = require('../middleware/validation');
+const {
   uploadScan,
   uploadScanFromUrl,
   getScans,
@@ -21,7 +26,7 @@ const upload = multer({
                    file.originalname.endsWith('.yml') || 
                    file.mimetype === 'application/x-yaml' || 
                    file.mimetype === 'text/yaml' ||
-                   file.mimetype === 'text/plain'; // some systems upload yaml as plain text
+                   file.mimetype === 'text/plain';
 
     if (isJson || isYaml) {
       cb(null, true);
@@ -42,17 +47,17 @@ router.post('/upload', (req, res, next) => {
     }
     next();
   });
-}, uploadScan);
+}, validateScanUpload, uploadScan);
 
 // Import spec from URL route
-router.post('/url', uploadScanFromUrl);
+router.post('/url', validateUrlImport, uploadScanFromUrl);
 
 // History operations
 router.route('/')
   .get(getScans);
 
 router.route('/:id')
-  .get(getScan)
-  .delete(deleteScan);
+  .get(validateObjectId, getScan)
+  .delete(validateObjectId, deleteScan);
 
 module.exports = router;

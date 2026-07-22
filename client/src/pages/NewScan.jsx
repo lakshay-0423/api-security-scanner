@@ -99,9 +99,10 @@ const NewScan = () => {
         setUploadProgress(percentCompleted);
       });
 
+      const scanId = res.data?.scanId || res.scanId;
       setSuccess('Specification parsed and imported successfully!');
       setTimeout(() => {
-        navigate(`/scans/${res.scanId}`);
+        navigate(`/scans/${scanId}`);
       }, 1000);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to parse and upload specification. Verify it is a valid OpenAPI specification.');
@@ -134,9 +135,10 @@ const NewScan = () => {
 
     try {
       const res = await uploadScanFromUrl(url);
+      const scanId = res.data?.scanId || res.scanId;
       setSuccess('Specification downloaded and parsed successfully!');
       setTimeout(() => {
-        navigate(`/scans/${res.scanId}`);
+        navigate(`/scans/${scanId}`);
       }, 1000);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to import specification from URL. Ensure the endpoint is reachable and contains a valid specification.');
