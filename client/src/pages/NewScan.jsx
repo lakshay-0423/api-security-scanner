@@ -148,7 +148,7 @@ const NewScan = () => {
   };
 
   return (
-    <div className="max-w-3xl mx-auto px-6 py-12 w-full flex flex-col gap-8">
+    <div className="max-w-3xl mx-auto px-6 py-12 w-full flex-1 flex flex-col gap-8 justify-center">
       {/* Title Header */}
       <div className="text-center space-y-2">
         <h1 className="text-3xl font-extrabold text-white tracking-wide">New API Scan</h1>
@@ -291,14 +291,14 @@ const NewScan = () => {
                 <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">
                   Specification URL
                 </label>
-                <div className="relative">
-                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-lg">🔗</span>
+                <div className="flex items-center gap-3 px-4 bg-[var(--color-bg-input)] border border-[var(--color-border)] rounded-xl focus-within:border-[var(--color-primary)] focus-within:ring-1 focus-within:ring-[var(--color-primary)] transition-all duration-200">
+                  <span className="text-lg shrink-0">🔗</span>
                   <input
                     type="url"
                     value={url}
                     onChange={(e) => setUrl(e.target.value)}
                     placeholder="https://petstore.swagger.io/v2/swagger.json"
-                    className="w-full pl-11 pr-4 py-3 bg-[var(--color-bg-input)]/80 border border-[var(--color-border)] rounded-xl text-white placeholder-[var(--color-text-muted)] focus:outline-none focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)] transition-all duration-200"
+                    className="w-full py-3 bg-transparent text-white placeholder-[var(--color-text-muted)] focus:outline-none"
                   />
                 </div>
                 <p className="text-xs text-[var(--color-text-muted)] leading-relaxed">
