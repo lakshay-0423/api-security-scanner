@@ -27,12 +27,15 @@ const Dashboard = () => {
 
   // Calculate stats
   const completedScans = scans.filter(s => s.status === 'completed');
-  const totalScansCount = scans.length;
+  const analyzedScans = completedScans.filter(s => s.analysisStatus === 'completed');
   
-  const totalEndpointsCount = completedScans.reduce(
-    (sum, scan) => sum + (scan.endpointCount || 0),
-    0
-  );
+  const totalScansCount = scans.length;
+  const totalEndpointsCount = completedScans.reduce((sum, scan) => sum + (scan.endpointCount || 0), 0);
+  const totalFindingsCount = completedScans.reduce((sum, scan) => sum + (scan.findingCount || 0), 0);
+
+  const averageRiskScore = analyzedScans.length > 0
+    ? Math.round(analyzedScans.reduce((sum, s) => sum + (s.riskScore || 0), 0) / analyzedScans.length)
+    : 0;
 
   const latestScan = scans[0] || null;
 
@@ -55,13 +58,29 @@ const Dashboard = () => {
     });
   };
 
+  const getRiskScoreBadge = (score = 0, status) => {
+    if (status !== 'completed') {
+      return <span className="text-xs text-[var(--color-text-muted)] italic">Not Analyzed</span>;
+    }
+    let colorClass = 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
+    if (score > 70) colorClass = 'bg-red-500/15 text-red-400 border-red-500/30';
+    else if (score > 40) colorClass = 'bg-amber-500/15 text-amber-400 border-amber-500/30';
+    else if (score > 20) colorClass = 'bg-yellow-500/15 text-yellow-300 border-yellow-500/30';
+
+    return (
+      <span className={`px-2 py-0.5 rounded text-xs font-bold border ${colorClass}`}>
+        {score} / 100
+      </span>
+    );
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-6 py-8 w-full flex-1 flex flex-col">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
         <div>
           <h1 className="text-3xl font-bold text-white tracking-wide">Security Dashboard</h1>
-          <p className="text-[var(--color-text-muted)] mt-1">Overview of your scanned API specifications</p>
+          <p className="text-[var(--color-text-muted)] mt-1">Overview of your scanned API specifications & passive security analysis</p>
         </div>
         <Link
           to="/scans/new"
@@ -83,54 +102,37 @@ const Dashboard = () => {
         </div>
       )}
 
-      {/* Stats Cards Grid */}
+      {/* KPI Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
-        {/* Total Scans Card */}
+        {/* Average Risk Score Card */}
         <div className="glass-card glass-card-hover rounded-2xl p-6 relative overflow-hidden group">
-          <p className="text-sm font-medium text-[var(--color-text-muted)] uppercase tracking-wider">Total Scans</p>
-          <p className="text-4xl font-extrabold text-white mt-2">{totalScansCount}</p>
-          <div className="absolute right-4 bottom-4 text-3xl opacity-10 group-hover:opacity-20 transition-opacity">🔍</div>
+          <p className="text-sm font-medium text-[var(--color-text-muted)] uppercase tracking-wider">Avg Risk Score</p>
+          <div className="flex items-baseline gap-2 mt-2">
+            <p className="text-4xl font-extrabold text-white">{averageRiskScore}</p>
+            <span className="text-xs text-[var(--color-text-muted)]">/ 100</span>
+          </div>
+          <div className="absolute right-4 bottom-4 text-3xl opacity-10 group-hover:opacity-20 transition-opacity">🛡️</div>
         </div>
 
-        {/* Total Endpoints Discovered */}
+        {/* Security Findings Counter */}
+        <div className="glass-card glass-card-hover rounded-2xl p-6 relative overflow-hidden group">
+          <p className="text-sm font-medium text-[var(--color-text-muted)] uppercase tracking-wider">Total Findings</p>
+          <p className="text-4xl font-extrabold text-amber-400 mt-2">{totalFindingsCount}</p>
+          <div className="absolute right-4 bottom-4 text-3xl opacity-10 group-hover:opacity-20 transition-opacity">⚠️</div>
+        </div>
+
+        {/* Endpoints Discovered */}
         <div className="glass-card glass-card-hover rounded-2xl p-6 relative overflow-hidden group">
           <p className="text-sm font-medium text-[var(--color-text-muted)] uppercase tracking-wider">Endpoints Discovered</p>
           <p className="text-4xl font-extrabold text-white mt-2">{totalEndpointsCount}</p>
           <div className="absolute right-4 bottom-4 text-3xl opacity-10 group-hover:opacity-20 transition-opacity">🌐</div>
         </div>
 
-        {/* Latest Scan */}
+        {/* Total Scans Card */}
         <div className="glass-card glass-card-hover rounded-2xl p-6 relative overflow-hidden group">
-          <p className="text-sm font-medium text-[var(--color-text-muted)] uppercase tracking-wider">Latest Scan</p>
-          {latestScan ? (
-            <div className="mt-2.5">
-              <p className="text-lg font-bold text-white truncate max-w-[190px]" title={latestScan.apiTitle}>{latestScan.apiTitle}</p>
-              <p className="text-xs text-[var(--color-text-muted)] truncate mt-1">v{latestScan.apiVersion} • {latestScan.endpointCount} endpoints</p>
-            </div>
-          ) : (
-            <p className="text-2xl font-bold text-[var(--color-text-muted)] mt-2">No scans yet</p>
-          )}
-          <div className="absolute right-4 bottom-4 text-3xl opacity-10 group-hover:opacity-20 transition-opacity">🕒</div>
-        </div>
-
-        {/* Authentication Types Found */}
-        <div className="glass-card glass-card-hover rounded-2xl p-6 relative overflow-hidden group">
-          <p className="text-sm font-medium text-[var(--color-text-muted)] uppercase tracking-wider">Auth Schemes Found</p>
-          {authTypesFound.length > 0 ? (
-            <div className="flex flex-wrap gap-1.5 mt-3 max-h-[52px] overflow-hidden">
-              {authTypesFound.map(type => (
-                <span
-                  key={type}
-                  className="px-2 py-0.5 rounded text-[10px] font-semibold bg-[var(--color-primary)]/10 text-[var(--color-primary-light)] border border-[var(--color-primary)]/20"
-                >
-                  {type}
-                </span>
-              ))}
-            </div>
-          ) : (
-            <p className="text-2xl font-bold text-[var(--color-text-muted)] mt-2">None detected</p>
-          )}
-          <div className="absolute right-4 bottom-4 text-3xl opacity-10 group-hover:opacity-20 transition-opacity">🛡️</div>
+          <p className="text-sm font-medium text-[var(--color-text-muted)] uppercase tracking-wider">Total Scans</p>
+          <p className="text-4xl font-extrabold text-white mt-2">{totalScansCount}</p>
+          <div className="absolute right-4 bottom-4 text-3xl opacity-10 group-hover:opacity-20 transition-opacity">🔍</div>
         </div>
       </div>
 
@@ -138,7 +140,7 @@ const Dashboard = () => {
       <div className="flex-1 flex flex-col min-h-0 glass-card rounded-2xl shadow-xl overflow-hidden">
         {/* Table Header */}
         <div className="px-6 py-5 border-b border-[var(--color-border)] flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-white">Recent Scans</h2>
+          <h2 className="text-lg font-semibold text-white">Recent API Scans & Risk Analysis</h2>
           {totalScansCount > 0 && (
             <Link to="/scans/history" className="text-xs font-semibold text-[var(--color-primary-light)] hover:text-[var(--color-primary)] transition-colors">
               View History →
@@ -154,7 +156,7 @@ const Dashboard = () => {
             </div>
             <h3 className="text-lg font-semibold text-white">No scans found</h3>
             <p className="text-sm text-[var(--color-text-muted)] mt-1.5 max-w-sm">
-              Upload an OpenAPI/Swagger definition file or provide a URL to discover API endpoints.
+              Upload an OpenAPI/Swagger definition file or provide a URL to discover API endpoints and run security analysis.
             </p>
             <Link
               to="/scans/new"
@@ -171,9 +173,9 @@ const Dashboard = () => {
                   <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">API Title</th>
                   <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">Version</th>
                   <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">Endpoints</th>
-                  <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">Source</th>
+                  <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">Risk Score</th>
+                  <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">Findings</th>
                   <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">Scan Date</th>
-                  <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">Status</th>
                   <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)] text-right">Action</th>
                 </tr>
               </thead>
@@ -198,34 +200,17 @@ const Dashboard = () => {
                       {scan.status === 'completed' ? scan.endpointCount : '0'}
                     </td>
                     <td className="px-6 py-4 text-sm">
-                      <span className={`px-2 py-0.5 rounded text-[10px] font-semibold uppercase ${
-                        scan.sourceType === 'url' 
-                          ? 'bg-purple-500/10 text-purple-400 border border-purple-500/20' 
-                          : 'bg-teal-500/10 text-teal-400 border border-teal-500/20'
-                      }`}>
-                        {scan.sourceType}
-                      </span>
+                      {getRiskScoreBadge(scan.riskScore, scan.analysisStatus)}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-[var(--color-text-muted)]">
+                      {scan.analysisStatus === 'completed' ? (
+                        <span className="font-semibold text-white">{scan.findingCount || 0} issues</span>
+                      ) : (
+                        '—'
+                      )}
                     </td>
                     <td className="px-6 py-4 text-sm text-[var(--color-text-muted)]">
                       {formatDate(scan.uploadedAt)}
-                    </td>
-                    <td className="px-6 py-4 text-sm">
-                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium border ${
-                        scan.status === 'completed' 
-                          ? 'bg-[var(--color-success)]/10 text-[var(--color-success)] border-[var(--color-success)]/20'
-                          : scan.status === 'failed'
-                          ? 'bg-[var(--color-error)]/10 text-[var(--color-error)] border-[var(--color-error)]/20'
-                          : 'bg-[var(--color-warning)]/10 text-[var(--color-warning)] border-[var(--color-warning)]/20'
-                      }`}>
-                        <span className={`w-1.5 h-1.5 rounded-full ${
-                          scan.status === 'completed' 
-                            ? 'bg-[var(--color-success)]'
-                            : scan.status === 'failed'
-                            ? 'bg-[var(--color-error)]'
-                            : 'bg-[var(--color-warning)] animate-pulse'
-                        }`} />
-                        {scan.status}
-                      </span>
                     </td>
                     <td className="px-6 py-4 text-sm text-right">
                       {scan.status === 'completed' && (

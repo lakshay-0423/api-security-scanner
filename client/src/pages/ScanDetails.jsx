@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { getScanById } from '../services/scanService';
+import { getScanById, runAnalysis, getFindings, exportJsonReport } from '../services/scanService';
 import LoadingSpinner from '../components/LoadingSpinner';
 
 const ScanDetails = () => {
@@ -9,35 +9,87 @@ const ScanDetails = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   
-  // Search & Filter state
+  // Phase 2 Analysis & Findings state
+  const [findings, setFindings] = useState([]);
+  const [analyzing, setAnalyzing] = useState(false);
+  const [analysisError, setAnalysisError] = useState('');
+  const [exporting, setExporting] = useState(false);
+
+  // Endpoints Search & Filter state
   const [searchTerm, setSearchTerm] = useState('');
   const [methodFilter, setMethodFilter] = useState('ALL');
   const [authFilter, setAuthFilter] = useState('ALL');
   const [securityFilter, setSecurityFilter] = useState('ALL');
+
+  // Findings Search & Filter state
+  const [findingSearch, setFindingSearch] = useState('');
+  const [severityFilter, setSeverityFilter] = useState('ALL');
+  const [categoryFilter, setCategoryFilter] = useState('ALL');
+  const [statusFilter, setStatusFilter] = useState('ALL');
   
-  // Expanded row tracking (endpointId)
+  // Expanded row tracking
   const [expandedEndpoints, setExpandedEndpoints] = useState({});
+  const [expandedFindings, setExpandedFindings] = useState({});
+
+  const fetchData = async () => {
+    try {
+      const scanRes = await getScanById(id);
+      setScan(scanRes.data);
+
+      if (scanRes.data.analysisStatus === 'completed') {
+        const findingsRes = await getFindings(id);
+        setFindings(findingsRes.data || []);
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to load scan details.');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchScanDetails = async () => {
-      try {
-        const res = await getScanById(id);
-        setScan(res.data);
-      } catch (err) {
-        setError(err.response?.data?.message || 'Failed to load scan details.');
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchScanDetails();
+    fetchData();
   }, [id]);
 
-  const toggleRow = (endpointId) => {
-    setExpandedEndpoints(prev => ({
-      ...prev,
-      [endpointId]: !prev[endpointId]
-    }));
+  const handleRunAnalysis = async () => {
+    setAnalyzing(true);
+    setAnalysisError('');
+    try {
+      await runAnalysis(id);
+      await fetchData();
+    } catch (err) {
+      setAnalysisError(err.response?.data?.message || 'Failed to execute security analysis.');
+      console.error(err);
+    } finally {
+      setAnalyzing(false);
+    }
+  };
+
+  const handleExportJson = async () => {
+    setExporting(true);
+    try {
+      const blobData = await exportJsonReport(id);
+      const url = window.URL.createObjectURL(new Blob([blobData], { type: 'application/json' }));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `security-report-${scan?.apiTitle ? scan.apiTitle.toLowerCase().replace(/[^a-z0-9]/g, '-') : id}.json`);
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+    } catch (err) {
+      console.error('Failed to download report', err);
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  const toggleEndpointRow = (endpointId) => {
+    setExpandedEndpoints(prev => ({ ...prev, [endpointId]: !prev[endpointId] }));
+  };
+
+  const toggleFindingRow = (findingId) => {
+    setExpandedFindings(prev => ({ ...prev, [findingId]: !prev[findingId] }));
   };
 
   const getMethodBadgeClass = (method) => {
@@ -48,6 +100,29 @@ const ScanDetails = () => {
     if (normalMethod === 'PATCH') return 'bg-purple-500/10 text-purple-400 border border-purple-500/20';
     if (normalMethod === 'DELETE') return 'bg-rose-500/10 text-rose-400 border border-rose-500/20';
     return 'bg-slate-500/10 text-slate-400 border border-slate-500/20';
+  };
+
+  const getSeverityBadgeClass = (severity) => {
+    const s = (severity || '').toLowerCase();
+    if (s === 'critical') return 'bg-red-950/80 text-red-300 border border-red-800';
+    if (s === 'high') return 'bg-rose-500/15 text-rose-400 border border-rose-500/30';
+    if (s === 'medium') return 'bg-amber-500/15 text-amber-400 border border-amber-500/30';
+    if (s === 'low') return 'bg-yellow-500/15 text-yellow-300 border border-yellow-500/30';
+    return 'bg-blue-500/15 text-blue-400 border border-blue-500/30';
+  };
+
+  const getStatusBadgeClass = (status) => {
+    const s = (status || '').toLowerCase();
+    if (s === 'resolved') return 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20';
+    if (s === 'accepted') return 'bg-blue-500/10 text-blue-400 border border-blue-500/20';
+    return 'bg-amber-500/10 text-amber-400 border border-amber-500/20';
+  };
+
+  const getRiskScoreColor = (score = 0) => {
+    if (score > 70) return { bg: 'bg-red-500/10', border: 'border-red-500/30', text: 'text-red-400', label: 'Critical Risk' };
+    if (score > 40) return { bg: 'bg-amber-500/10', border: 'border-amber-500/30', text: 'text-amber-400', label: 'High Risk' };
+    if (score > 20) return { bg: 'bg-yellow-500/10', border: 'border-yellow-500/30', text: 'text-yellow-400', label: 'Medium Risk' };
+    return { bg: 'bg-emerald-500/10', border: 'border-emerald-500/30', text: 'text-emerald-400', label: 'Low Risk' };
   };
 
   if (loading) return <LoadingSpinner />;
@@ -66,38 +141,77 @@ const ScanDetails = () => {
   }
 
   // Filtered endpoints calculation
-  const filteredEndpoints = scan.endpoints.filter(ep => {
-    // Path search
+  const filteredEndpoints = (scan.endpoints || []).filter(ep => {
     const matchesSearch = ep.path.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    // Method filter
     const matchesMethod = methodFilter === 'ALL' || ep.method === methodFilter;
-    
-    // Auth filter
-    const matchesAuth = authFilter === 'ALL' || 
-      (authFilter === 'AUTH' && ep.requiresAuth) || 
-      (authFilter === 'NO_AUTH' && !ep.requiresAuth);
-      
-    // Security type filter
+    const matchesAuth = authFilter === 'ALL' || (authFilter === 'AUTH' && ep.requiresAuth) || (authFilter === 'NO_AUTH' && !ep.requiresAuth);
     const matchesSecurity = securityFilter === 'ALL' || ep.securityType === securityFilter;
-    
     return matchesSearch && matchesMethod && matchesAuth && matchesSecurity;
   });
 
-  // Extract all methods present in the spec for filtering options
-  const methodsPresent = Array.from(new Set(scan.endpoints.map(e => e.method)));
-  
-  // Extract all security types present in the spec for filtering options
-  const securityTypesPresent = Array.from(new Set(scan.endpoints.map(e => e.securityType)));
+  // Filtered findings calculation
+  const filteredFindings = findings.filter(f => {
+    const query = findingSearch.toLowerCase();
+    const matchesSearch = f.title.toLowerCase().includes(query) ||
+                          f.description.toLowerCase().includes(query) ||
+                          (f.ruleId && f.ruleId.toLowerCase().includes(query)) ||
+                          (f.endpointId && f.endpointId.toLowerCase().includes(query));
+    const matchesSeverity = severityFilter === 'ALL' || f.severity.toLowerCase() === severityFilter.toLowerCase();
+    const matchesCategory = categoryFilter === 'ALL' || f.category === categoryFilter;
+    const matchesStatus = statusFilter === 'ALL' || f.status.toLowerCase() === statusFilter.toLowerCase();
+    return matchesSearch && matchesSeverity && matchesCategory && matchesStatus;
+  });
+
+  const methodsPresent = Array.from(new Set((scan.endpoints || []).map(e => e.method)));
+  const securityTypesPresent = Array.from(new Set((scan.endpoints || []).map(e => e.securityType)));
+  const categoriesPresent = Array.from(new Set(findings.map(f => f.category)));
+
+  const riskStyle = getRiskScoreColor(scan.riskScore);
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-8 w-full flex-1 flex flex-col min-h-0">
       {/* Back Link */}
-      <div className="mb-6">
+      <div className="mb-6 flex items-center justify-between">
         <Link to="/dashboard" className="text-sm font-semibold text-[var(--color-primary-light)] hover:underline flex items-center gap-1.5">
           ← Back to Dashboard
         </Link>
+
+        {/* Action Buttons */}
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleRunAnalysis}
+            disabled={analyzing}
+            className="px-4 py-2 bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-primary-light)] text-white text-xs font-semibold rounded-xl hover:opacity-90 transition-all flex items-center gap-2 cursor-pointer shadow-lg shadow-[var(--color-primary)]/20 disabled:opacity-50"
+          >
+            {analyzing ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                Analyzing Spec...
+              </>
+            ) : scan.analysisStatus === 'completed' ? (
+              <>⚡ Re-run Security Analysis</>
+            ) : (
+              <>🛡️ Run Security Analysis</>
+            )}
+          </button>
+
+          {scan.analysisStatus === 'completed' && (
+            <button
+              onClick={handleExportJson}
+              disabled={exporting}
+              className="px-4 py-2 bg-[var(--color-bg-card)] border border-[var(--color-border)] hover:border-[var(--color-primary)] text-white text-xs font-semibold rounded-xl transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
+            >
+              {exporting ? 'Generating JSON...' : '📥 Export JSON Report'}
+            </button>
+          )}
+        </div>
       </div>
+
+      {analysisError && (
+        <div className="mb-6 p-4 bg-[var(--color-error)]/10 border border-[var(--color-error)]/30 rounded-xl text-[var(--color-error)] text-sm flex items-center gap-2">
+          <span>⚠️ {analysisError}</span>
+        </div>
+      )}
 
       {/* API Header Info Card */}
       <div className="bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-2xl p-6 mb-8 shadow-xl">
@@ -118,7 +232,7 @@ const ScanDetails = () => {
               </p>
             )}
             
-            {/* Servers List */}
+            {/* Base Servers List */}
             {scan.servers && scan.servers.length > 0 && (
               <div className="pt-2">
                 <span className="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider block mb-1.5">
@@ -135,40 +249,199 @@ const ScanDetails = () => {
             )}
           </div>
 
-          {/* Quick Metrics Panel */}
-          <div className="grid grid-cols-2 gap-4 shrink-0 bg-[var(--color-bg-dark)]/50 border border-[var(--color-border)] rounded-xl p-4 min-w-[280px]">
-            <div>
-              <span className="text-[10px] font-semibold text-[var(--color-text-muted)] uppercase tracking-wider block">Discovered</span>
-              <span className="text-xl font-bold text-white mt-1 block">{scan.endpointCount} endpoints</span>
+          {/* Quick Metrics & Risk Score Panel */}
+          <div className="flex flex-col sm:flex-row lg:flex-col gap-4 shrink-0">
+            {/* Risk Score Card */}
+            <div className={`p-4 rounded-xl border ${riskStyle.bg} ${riskStyle.border} min-w-[200px] flex items-center justify-between`}>
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-wider block text-[var(--color-text-muted)]">Risk Score</span>
+                <span className={`text-3xl font-extrabold ${riskStyle.text} mt-0.5 block`}>{scan.riskScore || 0}<span className="text-sm text-[var(--color-text-muted)] font-normal"> / 100</span></span>
+              </div>
+              <span className={`px-2.5 py-1 rounded-lg text-xs font-bold ${riskStyle.bg} ${riskStyle.text} border ${riskStyle.border}`}>
+                {riskStyle.label}
+              </span>
             </div>
-            <div>
-              <span className="text-[10px] font-semibold text-[var(--color-text-muted)] uppercase tracking-wider block">Scan Duration</span>
-              <span className="text-xl font-bold text-white mt-1 block">{scan.scanDuration} ms</span>
-            </div>
-            <div className="col-span-2 border-t border-[var(--color-border)] pt-2.5 mt-1">
-              <span className="text-[10px] font-semibold text-[var(--color-text-muted)] uppercase tracking-wider block">Auth Detected</span>
-              <div className="flex flex-wrap gap-1 mt-1.5">
-                {scan.authTypes && scan.authTypes.length > 0 ? (
-                  scan.authTypes.map(t => (
-                    <span key={t} className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-[var(--color-primary)]/10 text-[var(--color-primary-light)] border border-[var(--color-primary)]/20">
-                      {t}
-                    </span>
-                  ))
-                ) : (
-                  <span className="text-xs font-semibold text-[var(--color-error)]">None</span>
-                )}
+
+            <div className="grid grid-cols-2 gap-4 shrink-0 bg-[var(--color-bg-dark)]/50 border border-[var(--color-border)] rounded-xl p-4 min-w-[280px]">
+              <div>
+                <span className="text-[10px] font-semibold text-[var(--color-text-muted)] uppercase tracking-wider block">Discovered</span>
+                <span className="text-xl font-bold text-white mt-1 block">{scan.endpointCount} endpoints</span>
+              </div>
+              <div>
+                <span className="text-[10px] font-semibold text-[var(--color-text-muted)] uppercase tracking-wider block">Security Issues</span>
+                <span className="text-xl font-bold text-white mt-1 block">{scan.findingCount || 0} findings</span>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Interactive Controls & Filters */}
+      {/* PHASE 2: SECURITY FINDINGS SECTION */}
+      {scan.analysisStatus === 'completed' && (
+        <div className="mb-10 flex flex-col glass-card rounded-2xl border border-[var(--color-border)] overflow-hidden shadow-2xl">
+          {/* Header */}
+          <div className="px-6 py-5 border-b border-[var(--color-border)] flex items-center justify-between bg-[var(--color-bg-input)]/40">
+            <div>
+              <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                🛡️ Static Security Analysis Findings
+                <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-[var(--color-primary)]/20 text-[var(--color-primary-light)] border border-[var(--color-primary)]/30">
+                  {findings.length} Total
+                </span>
+              </h2>
+              <p className="text-xs text-[var(--color-text-muted)] mt-1">Rule-based passive findings generated from OpenAPI specification metadata</p>
+            </div>
+          </div>
+
+          {/* Findings Filter Bar */}
+          <div className="p-5 border-b border-[var(--color-border)] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 bg-[var(--color-bg-card)]">
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-[var(--color-text-muted)]">🔍</span>
+              <input
+                type="text"
+                value={findingSearch}
+                onChange={(e) => setFindingSearch(e.target.value)}
+                placeholder="Search rule ID, title, endpoint..."
+                className="w-full pl-9 pr-3 py-2 bg-[var(--color-bg-input)] border border-[var(--color-border)] rounded-xl text-sm text-white placeholder-[var(--color-text-muted)] focus:outline-none focus:border-[var(--color-primary)]"
+              />
+            </div>
+
+            <div>
+              <select
+                value={severityFilter}
+                onChange={(e) => setSeverityFilter(e.target.value)}
+                className="w-full px-3 py-2 bg-[var(--color-bg-input)] border border-[var(--color-border)] rounded-xl text-sm text-white focus:outline-none focus:border-[var(--color-primary)]"
+              >
+                <option value="ALL">All Severities</option>
+                <option value="CRITICAL">Critical</option>
+                <option value="HIGH">High</option>
+                <option value="MEDIUM">Medium</option>
+                <option value="LOW">Low</option>
+                <option value="INFO">Info</option>
+              </select>
+            </div>
+
+            <div>
+              <select
+                value={categoryFilter}
+                onChange={(e) => setCategoryFilter(e.target.value)}
+                className="w-full px-3 py-2 bg-[var(--color-bg-input)] border border-[var(--color-border)] rounded-xl text-sm text-white focus:outline-none focus:border-[var(--color-primary)]"
+              >
+                <option value="ALL">All Categories</option>
+                {categoriesPresent.map(c => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="w-full px-3 py-2 bg-[var(--color-bg-input)] border border-[var(--color-border)] rounded-xl text-sm text-white focus:outline-none focus:border-[var(--color-primary)]"
+              >
+                <option value="ALL">All Statuses</option>
+                <option value="OPEN">Open</option>
+                <option value="ACCEPTED">Accepted</option>
+                <option value="RESOLVED">Resolved</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Findings Table */}
+          <div className="overflow-x-auto">
+            {filteredFindings.length === 0 ? (
+              <div className="p-8 text-center text-sm text-[var(--color-text-muted)]">
+                No security findings match your selected filters.
+              </div>
+            ) : (
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-[var(--color-bg-input)]/30 border-b border-[var(--color-border)]">
+                    <th className="w-10"></th>
+                    <th className="px-6 py-3.5 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">Severity</th>
+                    <th className="px-6 py-3.5 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">Rule ID</th>
+                    <th className="px-6 py-3.5 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">Category</th>
+                    <th className="px-6 py-3.5 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">Title</th>
+                    <th className="px-6 py-3.5 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">Endpoint</th>
+                    <th className="px-6 py-3.5 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[var(--color-border)]">
+                  {filteredFindings.map((f) => {
+                    const isExpanded = !!expandedFindings[f._id];
+                    return (
+                      <>
+                        <tr
+                          key={f._id}
+                          onClick={() => toggleFindingRow(f._id)}
+                          className="hover:bg-[var(--color-bg-input)]/20 transition-colors cursor-pointer select-none"
+                        >
+                          <td className="pl-4 text-center text-xs text-[var(--color-text-muted)]">
+                            {isExpanded ? '▼' : '▶'}
+                          </td>
+                          <td className="px-6 py-4">
+                            <span className={`px-2.5 py-1 rounded text-[11px] font-extrabold uppercase tracking-wide border ${getSeverityBadgeClass(f.severity)}`}>
+                              {f.severity}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 font-mono text-xs font-bold text-[var(--color-primary-light)]">
+                            {f.ruleId}
+                          </td>
+                          <td className="px-6 py-4 text-xs font-semibold text-[var(--color-text-muted)]">
+                            {f.category}
+                          </td>
+                          <td className="px-6 py-4 text-sm font-semibold text-white">
+                            {f.title}
+                          </td>
+                          <td className="px-6 py-4 font-mono text-xs text-[var(--color-text-muted)]">
+                            {f.endpointId}
+                          </td>
+                          <td className="px-6 py-4">
+                            <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusBadgeClass(f.status)}`}>
+                              {f.status}
+                            </span>
+                          </td>
+                        </tr>
+
+                        {isExpanded && (
+                          <tr className="bg-[var(--color-bg-input)]/10 border-l border-r border-[var(--color-primary)]/25">
+                            <td colSpan={7} className="px-8 py-5 text-sm space-y-4">
+                              <div>
+                                <h4 className="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider mb-1">Description</h4>
+                                <p className="text-[var(--color-text)] text-sm leading-relaxed">{f.description}</p>
+                              </div>
+
+                              <div>
+                                <h4 className="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider mb-1">Remediation Recommendation</h4>
+                                <p className="text-emerald-400 text-sm font-medium leading-relaxed">{f.recommendation}</p>
+                              </div>
+
+                              {f.reference && (
+                                <div>
+                                  <h4 className="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider mb-1">Security Standard Reference</h4>
+                                  <a href={f.reference} target="_blank" rel="noreferrer" className="text-xs text-[var(--color-primary-light)] hover:underline font-mono">
+                                    {f.reference}
+                                  </a>
+                                </div>
+                              )}
+                            </td>
+                          </tr>
+                        )}
+                      </>
+                    );
+                  })}
+                </tbody>
+              </table>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Endpoints Table Container */}
       <div className="bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-t-2xl p-5 border-b-0 space-y-4">
         <h2 className="text-lg font-semibold text-white">Discovered Endpoints Inventory</h2>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {/* Path Search */}
           <div className="relative">
             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-[var(--color-text-muted)]">🔍</span>
             <input
@@ -176,11 +449,10 @@ const ScanDetails = () => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search endpoint path..."
-              className="w-full pl-9 pr-3 py-2 bg-[var(--color-bg-input)] border border-[var(--color-border)] rounded-xl text-sm text-white placeholder-[var(--color-text-muted)] focus:outline-none focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)] transition-all"
+              className="w-full pl-9 pr-3 py-2 bg-[var(--color-bg-input)] border border-[var(--color-border)] rounded-xl text-sm text-white placeholder-[var(--color-text-muted)] focus:outline-none focus:border-[var(--color-primary)] transition-all"
             />
           </div>
 
-          {/* Method Filter */}
           <div>
             <select
               value={methodFilter}
@@ -194,7 +466,6 @@ const ScanDetails = () => {
             </select>
           </div>
 
-          {/* Auth Required Filter */}
           <div>
             <select
               value={authFilter}
@@ -207,7 +478,6 @@ const ScanDetails = () => {
             </select>
           </div>
 
-          {/* Security Type Filter */}
           <div>
             <select
               value={securityFilter}
@@ -223,7 +493,6 @@ const ScanDetails = () => {
         </div>
       </div>
 
-      {/* Endpoints Table View */}
       <div className="bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-b-2xl shadow-xl flex-1 overflow-hidden flex flex-col min-h-0">
         {filteredEndpoints.length === 0 ? (
           <div className="flex-1 flex flex-col items-center justify-center p-12 text-center">
@@ -254,7 +523,7 @@ const ScanDetails = () => {
                     <>
                       <tr
                         key={ep.endpointId}
-                        onClick={() => toggleRow(ep.endpointId)}
+                        onClick={() => toggleEndpointRow(ep.endpointId)}
                         className="hover:bg-[var(--color-bg-input)]/20 transition-colors cursor-pointer select-none"
                       >
                         <td className="pl-4 text-center text-sm text-[var(--color-text-muted)]">
@@ -298,7 +567,6 @@ const ScanDetails = () => {
                         <tr className="bg-[var(--color-bg-input)]/10 border-l border-r border-[var(--color-primary)]/25">
                           <td colSpan={7} className="px-8 py-5 text-sm">
                             <div className="space-y-4">
-                              {/* Description */}
                               {ep.description && (
                                 <div className="space-y-1">
                                   <h4 className="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">Description</h4>
@@ -306,7 +574,6 @@ const ScanDetails = () => {
                                 </div>
                               )}
 
-                              {/* OperationId */}
                               {ep.operationId && (
                                 <div className="space-y-1">
                                   <h4 className="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider font-mono">Operation ID</h4>
@@ -314,7 +581,6 @@ const ScanDetails = () => {
                                 </div>
                               )}
 
-                              {/* Request Body presence */}
                               <div className="flex items-center gap-1.5">
                                 <h4 className="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">Request Body Required:</h4>
                                 <span className={`text-xs font-medium ${ep.requestBodyPresent ? 'text-[var(--color-primary-light)] font-semibold' : 'text-[var(--color-text-muted)]'}`}>
@@ -322,7 +588,6 @@ const ScanDetails = () => {
                                 </span>
                               </div>
 
-                              {/* Parameters Table */}
                               <div className="space-y-2">
                                 <h4 className="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">Parameters Schema</h4>
                                 {ep.parameters && ep.parameters.length > 0 ? (
@@ -357,7 +622,6 @@ const ScanDetails = () => {
                                 )}
                               </div>
 
-                              {/* Response Codes */}
                               <div className="space-y-1.5">
                                 <h4 className="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">Defined Response Codes</h4>
                                 <div className="flex flex-wrap gap-1.5">

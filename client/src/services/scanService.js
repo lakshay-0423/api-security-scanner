@@ -32,3 +32,26 @@ export const deleteScan = async (id) => {
   const { data } = await api.delete(`/scans/${id}`);
   return data;
 };
+
+// Phase 2: Static Security Analysis API
+export const runAnalysis = async (scanId) => {
+  const { data } = await api.post(`/analysis/${scanId}`);
+  return data;
+};
+
+export const getFindings = async (scanId) => {
+  const { data } = await api.get(`/findings/${scanId}`);
+  return data;
+};
+
+export const deleteFindings = async (scanId) => {
+  const { data } = await api.delete(`/findings/${scanId}`);
+  return data;
+};
+
+export const exportJsonReport = async (scanId) => {
+  const response = await api.get(`/reports/${scanId}/json`, {
+    responseType: 'blob'
+  });
+  return response.data;
+};
