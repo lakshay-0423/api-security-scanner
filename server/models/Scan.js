@@ -138,6 +138,18 @@ const ScanSchema = new mongoose.Schema({
     type: Date,
     default: Date.now
   },
+  riskScore: {
+    type: Number,
+    default: 0
+  },
+  findingCount: {
+    type: Number,
+    default: 0
+  },
+  lastAnalyzedAt: {
+    type: Date,
+    default: null
+  },
   authTypes: [String],
   rawSpec: {
     type: Object

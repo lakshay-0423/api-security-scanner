@@ -8,6 +8,11 @@ const FindingSchema = new mongoose.Schema({
   },
   endpointId: {
     type: String,
+    required: true,
+    default: 'GLOBAL'
+  },
+  ruleId: {
+    type: String,
     required: true
   },
   severity: {
@@ -30,6 +35,15 @@ const FindingSchema = new mongoose.Schema({
   recommendation: {
     type: String,
     default: ''
+  },
+  reference: {
+    type: String,
+    default: ''
+  },
+  status: {
+    type: String,
+    enum: ['open', 'accepted', 'resolved'],
+    default: 'open'
   },
   createdAt: {
     type: Date,
