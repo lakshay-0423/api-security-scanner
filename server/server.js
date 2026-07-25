@@ -6,6 +6,7 @@ const notFound = require('./middleware/notFound');
 const errorHandler = require('./middleware/errorHandler');
 const authRoutes = require('./routes/authRoutes');
 const scanRoutes = require('./routes/scanRoutes');
+const analysisRoutes = require('./routes/analysisRoutes');
 
 const app = express();
 
@@ -22,6 +23,7 @@ app.use(cors({
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/scans', scanRoutes);
+app.use('/api', analysisRoutes);
 
 // Error Handling
 app.use(notFound);
