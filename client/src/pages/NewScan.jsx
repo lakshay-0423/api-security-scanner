@@ -84,7 +84,7 @@ const NewScan = () => {
   };
 
   return (
-    <div className="w-full max-w-2xl mx-auto py-8 md:py-12 flex flex-col gap-8">
+    <div className="w-full max-w-2xl flex-1 flex flex-col gap-8 py-4">
       {/* Title */}
       <div className="text-center">
         <h1 className="text-3xl font-extrabold text-white tracking-tight">New API Scan</h1>

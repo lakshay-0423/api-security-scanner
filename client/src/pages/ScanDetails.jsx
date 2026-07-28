@@ -169,7 +169,7 @@ const ScanDetails = () => {
   const riskStyle = getRiskScoreColor(scan.riskScore);
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-6 lg:px-8 py-8 flex-1 flex flex-col gap-8">
+    <div className="w-full max-w-6xl flex-1 flex flex-col gap-8">
       {/* Back Link & Actions */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <Link to="/dashboard" className="text-sm font-semibold text-[var(--color-primary-light)] hover:underline flex items-center gap-1.5">

@@ -63,7 +63,7 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto flex-1 flex flex-col gap-8">
+    <div className="w-full max-w-6xl flex-1 flex flex-col gap-8">
       {/* Header Section */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2 border-b border-[var(--color-border)]/40">
         <div>
@@ -93,7 +93,7 @@ const Dashboard = () => {
       )}
 
       {/* KPI Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5">
         {/* Average Risk Score Card */}
         <div className="glass-card glass-card-hover stat-card">
           <div className="flex items-center justify-between gap-3 mb-4">
