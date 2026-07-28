@@ -60,11 +60,11 @@ const ScanHistory = () => {
   if (loading) return <LoadingSpinner />;
 
   return (
-    <div className="max-w-7xl mx-auto px-8 py-10 w-full flex-1 flex flex-col">
+    <div className="w-full max-w-7xl mx-auto px-6 lg:px-8 py-8 flex-1 flex flex-col gap-8">
       {/* Header */}
-      <div className="mb-10">
-        <h1 className="text-3xl font-bold text-white tracking-wide">Scan History</h1>
-        <p className="text-[var(--color-text-muted)] mt-1">Review and manage past API inventory inventories.</p>
+      <div>
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">Scan History</h1>
+        <p className="text-sm text-[var(--color-text-muted)] mt-1">Review and manage past API inventory inventories.</p>
       </div>
 
       {error && (
