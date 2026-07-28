@@ -75,9 +75,9 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-8 w-full flex-1 flex flex-col">
+    <div className="max-w-7xl mx-auto px-8 py-10 w-full flex-1 flex flex-col">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-10">
         <div>
           <h1 className="text-3xl font-bold text-white tracking-wide">Security Dashboard</h1>
           <p className="text-[var(--color-text-muted)] mt-1">Overview of your scanned API specifications & passive security analysis</p>
@@ -103,9 +103,9 @@ const Dashboard = () => {
       )}
 
       {/* KPI Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
         {/* Average Risk Score Card */}
-        <div className="glass-card glass-card-hover rounded-2xl p-6 relative overflow-hidden group">
+        <div className="glass-card glass-card-hover rounded-2xl p-7 relative overflow-hidden group">
           <p className="text-sm font-medium text-[var(--color-text-muted)] uppercase tracking-wider">Avg Risk Score</p>
           <div className="flex items-baseline gap-2 mt-2">
             <p className="text-4xl font-extrabold text-white">{averageRiskScore}</p>
@@ -115,21 +115,21 @@ const Dashboard = () => {
         </div>
 
         {/* Security Findings Counter */}
-        <div className="glass-card glass-card-hover rounded-2xl p-6 relative overflow-hidden group">
+        <div className="glass-card glass-card-hover rounded-2xl p-7 relative overflow-hidden group">
           <p className="text-sm font-medium text-[var(--color-text-muted)] uppercase tracking-wider">Total Findings</p>
           <p className="text-4xl font-extrabold text-amber-400 mt-2">{totalFindingsCount}</p>
           <div className="absolute right-4 bottom-4 text-3xl opacity-10 group-hover:opacity-20 transition-opacity">⚠️</div>
         </div>
 
         {/* Endpoints Discovered */}
-        <div className="glass-card glass-card-hover rounded-2xl p-6 relative overflow-hidden group">
+        <div className="glass-card glass-card-hover rounded-2xl p-7 relative overflow-hidden group">
           <p className="text-sm font-medium text-[var(--color-text-muted)] uppercase tracking-wider">Endpoints Discovered</p>
           <p className="text-4xl font-extrabold text-white mt-2">{totalEndpointsCount}</p>
           <div className="absolute right-4 bottom-4 text-3xl opacity-10 group-hover:opacity-20 transition-opacity">🌐</div>
         </div>
 
         {/* Total Scans Card */}
-        <div className="glass-card glass-card-hover rounded-2xl p-6 relative overflow-hidden group">
+        <div className="glass-card glass-card-hover rounded-2xl p-7 relative overflow-hidden group">
           <p className="text-sm font-medium text-[var(--color-text-muted)] uppercase tracking-wider">Total Scans</p>
           <p className="text-4xl font-extrabold text-white mt-2">{totalScansCount}</p>
           <div className="absolute right-4 bottom-4 text-3xl opacity-10 group-hover:opacity-20 transition-opacity">🔍</div>
@@ -139,7 +139,7 @@ const Dashboard = () => {
       {/* Main Section */}
       <div className="flex-1 flex flex-col min-h-0 glass-card rounded-2xl shadow-xl overflow-hidden">
         {/* Table Header */}
-        <div className="px-6 py-5 border-b border-[var(--color-border)] flex items-center justify-between">
+        <div className="px-8 py-6 border-b border-[var(--color-border)] flex items-center justify-between">
           <h2 className="text-lg font-semibold text-white">Recent API Scans & Risk Analysis</h2>
           {totalScansCount > 0 && (
             <Link to="/scans/history" className="text-xs font-semibold text-[var(--color-primary-light)] hover:text-[var(--color-primary)] transition-colors">

@@ -53,7 +53,7 @@ const Sidebar = () => {
       </div>
 
       {/* Navigation Links */}
-      <nav className="flex-1 px-4 py-6 flex flex-col gap-1.5 overflow-y-auto">
+      <nav className="flex-1 px-5 py-8 flex flex-col gap-2 overflow-y-auto">
         {navItems.map((item) => (
           <NavLink
             key={item.name}
@@ -73,8 +73,8 @@ const Sidebar = () => {
       </nav>
 
       {/* User Info & Logout Profile Panel */}
-      <div className="p-4 border-t border-[var(--color-border)] bg-[var(--color-bg-dark)]/40">
-        <div className="flex items-center gap-3 px-2 py-1.5 mb-3">
+      <div className="p-5 border-t border-[var(--color-border)] bg-[var(--color-bg-dark)]/40">
+        <div className="flex items-center gap-3 px-3 py-2 mb-4">
           <div className="w-9 h-9 rounded-full bg-[var(--color-bg-input)] border border-[var(--color-border)] flex items-center justify-center font-bold text-[var(--color-primary-light)]">
             {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
           </div>

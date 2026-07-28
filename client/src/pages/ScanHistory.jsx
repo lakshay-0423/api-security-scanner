@@ -60,9 +60,9 @@ const ScanHistory = () => {
   if (loading) return <LoadingSpinner />;
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-8 w-full flex-1 flex flex-col">
+    <div className="max-w-7xl mx-auto px-8 py-10 w-full flex-1 flex flex-col">
       {/* Header */}
-      <div className="mb-8">
+      <div className="mb-10">
         <h1 className="text-3xl font-bold text-white tracking-wide">Scan History</h1>
         <p className="text-[var(--color-text-muted)] mt-1">Review and manage past API inventory inventories.</p>
       </div>
@@ -186,7 +186,7 @@ const ScanHistory = () => {
       {/* Delete Confirmation Modal */}
       {deleteId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="glass-card w-full max-w-md rounded-2xl p-6 shadow-2xl flex flex-col gap-4">
+          <div className="glass-card w-full max-w-md rounded-2xl p-8 shadow-2xl flex flex-col gap-4">
             <h3 className="text-xl font-bold text-white">Delete Scan Report</h3>
             <p className="text-sm text-[var(--color-text-muted)] leading-relaxed">
               Are you sure you want to delete this scan report? This action is permanent and cannot be undone. All discovered endpoints will be removed from your database inventory.

@@ -169,9 +169,9 @@ const ScanDetails = () => {
   const riskStyle = getRiskScoreColor(scan.riskScore);
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-8 w-full flex-1 flex flex-col min-h-0">
+    <div className="max-w-7xl mx-auto px-8 py-10 w-full flex-1 flex flex-col min-h-0">
       {/* Back Link */}
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-8 flex items-center justify-between">
         <Link to="/dashboard" className="text-sm font-semibold text-[var(--color-primary-light)] hover:underline flex items-center gap-1.5">
           ← Back to Dashboard
         </Link>
@@ -214,7 +214,7 @@ const ScanDetails = () => {
       )}
 
       {/* API Header Info Card */}
-      <div className="bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-2xl p-6 mb-8 shadow-xl">
+      <div className="bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-2xl p-8 mb-10 shadow-xl">
         <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
           <div className="space-y-3 flex-1">
             <div className="flex flex-wrap items-center gap-3">
@@ -252,7 +252,7 @@ const ScanDetails = () => {
           {/* Quick Metrics & Risk Score Panel */}
           <div className="flex flex-col sm:flex-row lg:flex-col gap-4 shrink-0">
             {/* Risk Score Card */}
-            <div className={`p-4 rounded-xl border ${riskStyle.bg} ${riskStyle.border} min-w-[200px] flex items-center justify-between`}>
+            <div className={`p-6 rounded-2xl border ${riskStyle.bg} ${riskStyle.border} min-w-[220px] flex items-center justify-between`}>
               <div>
                 <span className="text-[10px] font-bold uppercase tracking-wider block text-[var(--color-text-muted)]">Risk Score</span>
                 <span className={`text-3xl font-extrabold ${riskStyle.text} mt-0.5 block`}>{scan.riskScore || 0}<span className="text-sm text-[var(--color-text-muted)] font-normal"> / 100</span></span>
@@ -262,7 +262,7 @@ const ScanDetails = () => {
               </span>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 shrink-0 bg-[var(--color-bg-dark)]/50 border border-[var(--color-border)] rounded-xl p-4 min-w-[280px]">
+            <div className="grid grid-cols-2 gap-4 shrink-0 bg-[var(--color-bg-dark)]/50 border border-[var(--color-border)] rounded-2xl p-6 min-w-[280px]">
               <div>
                 <span className="text-[10px] font-semibold text-[var(--color-text-muted)] uppercase tracking-wider block">Discovered</span>
                 <span className="text-xl font-bold text-white mt-1 block">{scan.endpointCount} endpoints</span>
@@ -280,7 +280,7 @@ const ScanDetails = () => {
       {scan.analysisStatus === 'completed' && (
         <div className="mb-10 flex flex-col glass-card rounded-2xl border border-[var(--color-border)] overflow-hidden shadow-2xl">
           {/* Header */}
-          <div className="px-6 py-5 border-b border-[var(--color-border)] flex items-center justify-between bg-[var(--color-bg-input)]/40">
+          <div className="px-8 py-6 border-b border-[var(--color-border)] flex items-center justify-between bg-[var(--color-bg-input)]/40">
             <div>
               <h2 className="text-xl font-bold text-white flex items-center gap-2">
                 🛡️ Static Security Analysis Findings
@@ -293,7 +293,7 @@ const ScanDetails = () => {
           </div>
 
           {/* Findings Filter Bar */}
-          <div className="p-5 border-b border-[var(--color-border)] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 bg-[var(--color-bg-card)]">
+          <div className="p-6 border-b border-[var(--color-border)] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 bg-[var(--color-bg-card)]">
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-[var(--color-text-muted)]">🔍</span>
               <input
@@ -405,7 +405,7 @@ const ScanDetails = () => {
 
                         {isExpanded && (
                           <tr className="bg-[var(--color-bg-input)]/10 border-l border-r border-[var(--color-primary)]/25">
-                            <td colSpan={7} className="px-8 py-5 text-sm space-y-4">
+                            <td colSpan={7} className="px-10 py-6 text-sm space-y-4">
                               <div>
                                 <h4 className="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider mb-1">Description</h4>
                                 <p className="text-[var(--color-text)] text-sm leading-relaxed">{f.description}</p>
@@ -438,7 +438,7 @@ const ScanDetails = () => {
       )}
 
       {/* Endpoints Table Container */}
-      <div className="bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-t-2xl p-5 border-b-0 space-y-4">
+      <div className="bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-t-2xl p-6 border-b-0 space-y-4">
         <h2 className="text-lg font-semibold text-white">Discovered Endpoints Inventory</h2>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -565,7 +565,7 @@ const ScanDetails = () => {
                       {/* Expanded Details Row */}
                       {isExpanded && (
                         <tr className="bg-[var(--color-bg-input)]/10 border-l border-r border-[var(--color-primary)]/25">
-                          <td colSpan={7} className="px-8 py-5 text-sm">
+                          <td colSpan={7} className="px-10 py-6 text-sm">
                             <div className="space-y-4">
                               {ep.description && (
                                 <div className="space-y-1">

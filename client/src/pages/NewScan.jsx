@@ -84,7 +84,7 @@ const NewScan = () => {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flex: 1, padding: '48px 24px', width: '100%' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flex: 1, padding: '64px 32px', width: '100%' }}>
       <div style={{ width: '100%', maxWidth: '640px' }}>
 
         {/* Title */}
@@ -112,7 +112,7 @@ const NewScan = () => {
                 onClick={() => { setActiveTab(tab); setError(''); setSuccess(''); }}
                 style={{
                   flex: 1,
-                  padding: '16px',
+                  padding: '20px',
                   textAlign: 'center',
                   fontWeight: 600,
                   fontSize: '14px',
@@ -130,7 +130,7 @@ const NewScan = () => {
           </div>
 
           {/* Content */}
-          <div style={{ padding: '32px' }}>
+          <div style={{ padding: '40px' }}>
             {/* Alerts */}
             {error && (
               <div style={{ marginBottom: '24px', padding: '14px 16px', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: '12px', color: '#ef4444', fontSize: '14px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
@@ -160,7 +160,7 @@ const NewScan = () => {
                   style={{
                     border: isDragging ? '2px dashed #3b82f6' : '2px dashed rgba(30, 58, 95, 0.8)',
                     borderRadius: '16px',
-                    padding: '48px 24px',
+                    padding: '56px 32px',
                     textAlign: 'center',
                     cursor: 'pointer',
                     background: isDragging ? 'rgba(59, 130, 246, 0.08)' : 'rgba(30, 41, 59, 0.3)',
