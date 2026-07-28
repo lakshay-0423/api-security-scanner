@@ -62,11 +62,8 @@ const Register = () => {
     }
   };
 
-  const inputClass = "w-full py-3 bg-transparent text-white placeholder-[var(--color-text-muted)] focus:outline-none";
-  const wrapperClass = "flex items-center gap-3 px-4 bg-[var(--color-bg-input)] border border-[var(--color-border)] rounded-xl focus-within:border-[var(--color-primary)] focus-within:ring-1 focus-within:ring-[var(--color-primary)] transition-all duration-200";
-
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-12 relative overflow-hidden bg-[var(--color-bg-dark)]">
+    <div className="min-h-screen flex items-center justify-center px-6 py-12 relative overflow-hidden bg-[var(--color-bg-dark)]">
       {/* Background Ambient Glow Orbs */}
       <div className="absolute -top-32 -left-32 w-96 h-96 rounded-full bg-blue-600/10 blur-3xl pointer-events-none" />
       <div className="absolute -bottom-32 -right-32 w-96 h-96 rounded-full bg-indigo-600/10 blur-3xl pointer-events-none" />
@@ -84,9 +81,9 @@ const Register = () => {
         </div>
 
         {/* Glass Card Container */}
-        <div className="glass-card rounded-2xl p-8 shadow-2xl">
+        <div className="glass-card rounded-2xl p-8 md:p-10 shadow-2xl">
           {error && (
-            <div className="mb-6 p-3.5 rounded-xl bg-[var(--color-error)]/10 border border-[var(--color-error)]/30 text-[var(--color-error)] text-sm flex items-center gap-2.5">
+            <div className="mb-6 p-4 rounded-xl bg-[var(--color-error)]/10 border border-[var(--color-error)]/30 text-[var(--color-error)] text-sm flex items-center gap-2.5">
               <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="12" r="10" />
                 <line x1="15" y1="9" x2="9" y2="15" />
@@ -98,9 +95,9 @@ const Register = () => {
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             {/* Full Name */}
-            <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)] mb-1.5">Full Name</label>
-              <div className={wrapperClass}>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)]">Full Name</label>
+              <div className="input-wrapper">
                 <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 shrink-0 text-[var(--color-text-muted)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                   <circle cx="12" cy="7" r="4" />
@@ -111,15 +108,15 @@ const Register = () => {
                   value={formData.name}
                   onChange={handleChange}
                   placeholder="John Doe"
-                  className={inputClass}
+                  className="input-field"
                 />
               </div>
             </div>
 
             {/* Email */}
-            <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)] mb-1.5">Email Address</label>
-              <div className={wrapperClass}>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)]">Email Address</label>
+              <div className="input-wrapper">
                 <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 shrink-0 text-[var(--color-text-muted)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <rect width="20" height="16" x="2" y="4" rx="2" />
                   <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
@@ -130,15 +127,15 @@ const Register = () => {
                   value={formData.email}
                   onChange={handleChange}
                   placeholder="you@example.com"
-                  className={inputClass}
+                  className="input-field"
                 />
               </div>
             </div>
 
             {/* Password */}
-            <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)] mb-1.5">Password</label>
-              <div className={wrapperClass}>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)]">Password</label>
+              <div className="input-wrapper">
                 <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 shrink-0 text-[var(--color-text-muted)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
                   <path d="M7 11V7a5 5 0 0 1 10 0v4" />
@@ -149,7 +146,7 @@ const Register = () => {
                   value={formData.password}
                   onChange={handleChange}
                   placeholder="Min. 6 characters"
-                  className={inputClass}
+                  className="input-field"
                 />
                 <button
                   type="button"
@@ -172,9 +169,9 @@ const Register = () => {
             </div>
 
             {/* Confirm Password */}
-            <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)] mb-1.5">Confirm Password</label>
-              <div className={wrapperClass}>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)]">Confirm Password</label>
+              <div className="input-wrapper">
                 <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 shrink-0 text-[var(--color-text-muted)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                 </svg>
@@ -184,7 +181,7 @@ const Register = () => {
                   value={formData.confirmPassword}
                   onChange={handleChange}
                   placeholder="Re-enter your password"
-                  className={inputClass}
+                  className="input-field"
                 />
               </div>
             </div>
@@ -192,11 +189,11 @@ const Register = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full mt-2 py-3 px-4 bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-primary-light)] text-white font-semibold rounded-xl hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:ring-offset-2 focus:ring-offset-[var(--color-bg-card)] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-[var(--color-primary)]/20"
+              className="w-full mt-3 py-3.5 px-4 bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-primary-light)] text-white font-semibold text-sm rounded-xl hover:opacity-95 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-[var(--color-primary)]/20"
             >
               {loading ? (
                 <>
-                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                   Creating account...
                 </>
               ) : (
