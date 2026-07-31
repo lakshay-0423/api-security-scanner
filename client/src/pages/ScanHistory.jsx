@@ -7,7 +7,7 @@ const ScanHistory = () => {
   const [scans, setScans] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [deleteId, setDeleteId] = useState(null); // ID for confirmation
+  const [deleteId, setDeleteId] = useState(null);
   const [deleting, setDeleting] = useState(false);
 
   const fetchHistory = async () => {
@@ -60,16 +60,29 @@ const ScanHistory = () => {
   if (loading) return <LoadingSpinner />;
 
   return (
-    <div className="w-full max-w-7xl py-4 sm:py-6 flex-1 flex flex-col gap-6 sm:gap-8">
+    <div className="w-full max-w-6xl flex-1 flex flex-col gap-6 animate-fade-in">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">Scan History</h1>
-        <p className="text-sm text-[var(--color-text-muted)] mt-1">Review and manage your previous API inventory scans.</p>
+      <div className="flex items-center justify-between gap-4">
+        <div>
+          <h1 className="text-xl font-bold text-white">Scan History</h1>
+          <p className="text-[13px] text-[var(--color-text-muted)] mt-0.5">
+            Review and manage your previous API security scans.
+          </p>
+        </div>
+        <Link
+          to="/scans/new"
+          className="btn-primary shrink-0"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+          </svg>
+          New Scan
+        </Link>
       </div>
 
       {error && (
-        <div className="mb-6 p-4 bg-[var(--color-error)]/10 border border-[var(--color-error)]/30 rounded-xl text-[var(--color-error)] text-sm flex items-center gap-2">
-          <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+        <div className="p-3.5 bg-[var(--color-error)]/8 border border-[var(--color-error)]/20 rounded-lg text-[var(--color-error)] text-[13px] flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
           </svg>
           {error}
@@ -77,56 +90,58 @@ const ScanHistory = () => {
       )}
 
       {/* Main Table Container */}
-      <div className="flex-1 flex flex-col glass-card rounded-2xl shadow-xl overflow-hidden min-h-0">
+      <div className="flex-1 flex flex-col glass-card overflow-hidden min-h-0">
         {scans.length === 0 ? (
-          <div className="flex-1 flex flex-col items-center justify-center p-12 text-center">
-            <div className="w-16 h-16 rounded-full bg-[var(--color-bg-input)] border border-[var(--color-border)] flex items-center justify-center text-2xl mb-4">
-              📚
+          <div className="flex-1 flex flex-col items-center justify-center py-16 px-6 text-center">
+            <div className="w-12 h-12 rounded-xl bg-[var(--color-bg-input)] border border-[var(--color-border)] flex items-center justify-center mb-4 text-[var(--color-text-muted)]">
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.75">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
             </div>
-            <h3 className="text-lg font-semibold text-white">No scans recorded</h3>
-            <p className="text-sm text-[var(--color-text-muted)] mt-1.5 max-w-sm">
-              Your previous scan reports will appear here once you create them.
+            <h3 className="text-sm font-semibold text-white">No scan history</h3>
+            <p className="text-xs text-[var(--color-text-muted)] mt-1.5 max-w-xs leading-relaxed">
+              Your previous scan reports will appear here once you perform a scan.
             </p>
             <Link
               to="/scans/new"
-              className="mt-6 px-4 py-2.5 bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-primary-light)] text-white text-sm font-medium rounded-xl transition-all cursor-pointer"
+              className="btn-secondary mt-5"
             >
-              Start Your First Scan
+              Start your first scan
             </Link>
           </div>
         ) : (
           <div className="overflow-x-auto flex-1 min-h-0">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-[var(--color-bg-input)]/30 border-b border-[var(--color-border)]">
-                  <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">API Title</th>
-                  <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">Version</th>
-                  <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">Source</th>
-                  <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">Location</th>
-                  <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">Endpoints</th>
-                  <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">Scanned On</th>
-                  <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">Status</th>
-                  <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)] text-right">Actions</th>
+                <tr className="border-b border-[var(--color-border)]">
+                  <th className="px-5 py-3 text-[11px] font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">API Title</th>
+                  <th className="px-5 py-3 text-[11px] font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">Version</th>
+                  <th className="px-5 py-3 text-[11px] font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">Source</th>
+                  <th className="px-5 py-3 text-[11px] font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">Location</th>
+                  <th className="px-5 py-3 text-[11px] font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">Endpoints</th>
+                  <th className="px-5 py-3 text-[11px] font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">Scanned</th>
+                  <th className="px-5 py-3 text-[11px] font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">Status</th>
+                  <th className="px-5 py-3 text-[11px] font-semibold uppercase tracking-wider text-[var(--color-text-muted)] text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[var(--color-border)]">
                 {scans.map((scan) => (
-                  <tr key={scan._id} className="hover:bg-[var(--color-bg-input)]/20 transition-colors">
-                    <td className="px-6 py-4">
+                  <tr key={scan._id} className="hover:bg-white/[0.02] transition-colors">
+                    <td className="px-5 py-3.5">
                       {scan.status === 'completed' ? (
-                        <Link to={`/scans/${scan._id}`} className="font-semibold text-[var(--color-primary-light)] hover:underline truncate max-w-[180px] block">
+                        <Link to={`/scans/${scan._id}`} className="font-medium text-[13px] text-[var(--color-primary-light)] hover:underline truncate max-w-[180px] block">
                           {scan.apiTitle}
                         </Link>
                       ) : (
-                        <span className="font-semibold text-[var(--color-text-muted)] truncate max-w-[180px] block">
+                        <span className="font-medium text-[13px] text-[var(--color-text-muted)] truncate max-w-[180px] block">
                           {scan.fileName}
                         </span>
                       )}
                     </td>
-                    <td className="px-6 py-4 text-sm text-[var(--color-text)]">
+                    <td className="px-5 py-3.5 text-xs font-mono text-[var(--color-text)]">
                       {scan.status === 'completed' ? `v${scan.apiVersion}` : '—'}
                     </td>
-                    <td className="px-6 py-4 text-sm">
+                    <td className="px-5 py-3.5 text-xs">
                       <span className={`px-2 py-0.5 rounded text-[10px] font-semibold uppercase ${
                         scan.sourceType === 'url' 
                           ? 'bg-purple-500/10 text-purple-400 border border-purple-500/20' 
@@ -135,17 +150,17 @@ const ScanHistory = () => {
                         {scan.sourceType}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-sm text-[var(--color-text-muted)] max-w-[200px] truncate" title={scan.sourceLocation}>
+                    <td className="px-5 py-3.5 text-xs text-[var(--color-text-muted)] max-w-[180px] truncate" title={scan.sourceLocation}>
                       {scan.sourceLocation}
                     </td>
-                    <td className="px-6 py-4 text-sm text-[var(--color-text)]">
+                    <td className="px-5 py-3.5 text-xs font-medium text-[var(--color-text)]">
                       {scan.status === 'completed' ? scan.endpointCount : '0'}
                     </td>
-                    <td className="px-6 py-4 text-sm text-[var(--color-text-muted)]">
+                    <td className="px-5 py-3.5 text-xs text-[var(--color-text-muted)]">
                       {formatDate(scan.uploadedAt)}
                     </td>
-                    <td className="px-6 py-4 text-sm">
-                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium border ${
+                    <td className="px-5 py-3.5 text-xs">
+                      <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium border ${
                         scan.status === 'completed' 
                           ? 'bg-[var(--color-success)]/10 text-[var(--color-success)] border-[var(--color-success)]/20'
                           : scan.status === 'failed'
@@ -162,15 +177,15 @@ const ScanHistory = () => {
                         {scan.status}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-sm text-right space-x-2">
+                    <td className="px-5 py-3.5 text-right space-x-2">
                       {scan.status === 'completed' && (
-                        <Link to={`/scans/${scan._id}`} className="px-2.5 py-1.5 bg-[var(--color-bg-input)] hover:bg-[var(--color-primary)] hover:text-white border border-[var(--color-border)] rounded-lg text-xs font-medium text-white transition-all cursor-pointer">
+                        <Link to={`/scans/${scan._id}`} className="btn-secondary !py-1.2 !px-2.5 !text-xs">
                           View
                         </Link>
                       )}
                       <button
                         onClick={() => handleDeleteClick(scan._id)}
-                        className="px-2.5 py-1.5 bg-[var(--color-bg-input)] hover:bg-[var(--color-error)]/10 hover:text-[var(--color-error)] border border-[var(--color-border)] hover:border-[var(--color-error)]/30 rounded-lg text-xs font-medium text-[var(--color-text-muted)] transition-all cursor-pointer"
+                        className="btn-secondary !py-1.2 !px-2.5 !text-xs hover:!text-[var(--color-error)] hover:!border-[var(--color-error)]/30"
                       >
                         Delete
                       </button>
@@ -185,28 +200,28 @@ const ScanHistory = () => {
 
       {/* Delete Confirmation Modal */}
       {deleteId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="glass-card w-full max-w-md rounded-2xl p-8 shadow-2xl flex flex-col gap-4">
-            <h3 className="text-xl font-bold text-white">Delete Scan Report</h3>
-            <p className="text-sm text-[var(--color-text-muted)] leading-relaxed">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs">
+          <div className="glass-card w-full max-w-md p-6 flex flex-col gap-4">
+            <h3 className="text-base font-bold text-white">Delete Scan Report</h3>
+            <p className="text-xs text-[var(--color-text-muted)] leading-relaxed">
               Are you sure you want to delete this scan report? This action is permanent and cannot be undone. All discovered endpoints will be removed from your database inventory.
             </p>
-            <div className="flex gap-3 justify-end pt-2">
+            <div className="flex gap-2.5 justify-end pt-2">
               <button
                 onClick={() => setDeleteId(null)}
                 disabled={deleting}
-                className="px-4 py-2 border border-[var(--color-border)] text-sm font-medium rounded-xl text-[var(--color-text-muted)] hover:text-white transition-colors cursor-pointer"
+                className="btn-secondary !py-1.5 !px-3.5 !text-xs"
               >
                 Cancel
               </button>
               <button
                 onClick={handleConfirmDelete}
                 disabled={deleting}
-                className="px-4 py-2 bg-[var(--color-error)] text-white text-sm font-medium rounded-xl hover:opacity-95 transition-opacity disabled:opacity-50 flex items-center gap-1.5 cursor-pointer"
+                className="btn-primary !bg-[var(--color-error)] hover:!bg-red-600 !py-1.5 !px-3.5 !text-xs"
               >
                 {deleting ? (
                   <>
-                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                     Deleting...
                   </>
                 ) : (

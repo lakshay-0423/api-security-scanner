@@ -169,29 +169,29 @@ const ScanDetails = () => {
   const riskStyle = getRiskScoreColor(scan.riskScore);
 
   return (
-    <div className="w-full max-w-6xl flex-1 flex flex-col gap-8">
+    <div className="w-full max-w-6xl flex-1 flex flex-col gap-6 animate-fade-in">
       {/* Back Link & Actions */}
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <Link to="/dashboard" className="text-sm font-semibold text-[var(--color-primary-light)] hover:underline flex items-center gap-1.5">
+        <Link to="/dashboard" className="text-xs font-semibold text-[var(--color-primary-light)] hover:underline flex items-center gap-1.5">
           ← Back to Dashboard
         </Link>
 
         {/* Action Buttons */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5">
           <button
             onClick={handleRunAnalysis}
             disabled={analyzing}
-            className="px-4 py-2.5 bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-primary-light)] text-white text-xs font-semibold rounded-xl hover:opacity-90 transition-all flex items-center gap-2 cursor-pointer shadow-lg shadow-[var(--color-primary)]/20 disabled:opacity-50"
+            className="btn-primary"
           >
             {analyzing ? (
               <>
-                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                 Analyzing Spec...
               </>
             ) : scan.analysisStatus === 'completed' ? (
-              <>⚡ Re-run Security Analysis</>
+              'Re-run Security Analysis'
             ) : (
-              <>🛡️ Run Security Analysis</>
+              'Run Security Analysis'
             )}
           </button>
 
@@ -199,9 +199,9 @@ const ScanDetails = () => {
             <button
               onClick={handleExportJson}
               disabled={exporting}
-              className="px-4 py-2.5 bg-[var(--color-bg-card)] border border-[var(--color-border)] hover:border-[var(--color-primary)] text-white text-xs font-semibold rounded-xl transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
+              className="btn-secondary"
             >
-              {exporting ? 'Generating JSON...' : '📥 Export JSON Report'}
+              {exporting ? 'Generating JSON...' : 'Export JSON Report'}
             </button>
           )}
         </div>
