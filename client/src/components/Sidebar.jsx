@@ -41,27 +41,27 @@ const Sidebar = () => {
   ];
 
   return (
-    <aside className="w-60 bg-[var(--color-bg-card)] border-r border-[var(--color-border)] flex flex-col h-screen sticky top-0 shrink-0 max-md:fixed max-md:inset-x-0 max-md:bottom-0 max-md:top-auto max-md:z-50 max-md:h-auto max-md:w-full max-md:border-r-0 max-md:border-t">
+    <aside className="w-64 bg-[var(--color-bg-card)] border-r border-[var(--color-border)] flex flex-col h-screen sticky top-0 shrink-0 max-md:fixed max-md:inset-x-0 max-md:bottom-0 max-md:top-auto max-md:z-50 max-md:h-auto max-md:w-full max-md:border-r-0 max-md:border-t">
       {/* Brand Header */}
-      <div className="h-14 flex items-center gap-2.5 px-5 border-b border-[var(--color-border)] max-md:hidden">
-        <div className="w-7 h-7 rounded-lg bg-[var(--color-primary)] flex items-center justify-center">
+      <div className="h-16 flex items-center gap-3 px-6 border-b border-[var(--color-border)] max-md:hidden">
+        <div className="w-8 h-8 rounded-lg bg-[var(--color-primary)] flex items-center justify-center shadow-md shadow-blue-500/20">
           <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
           </svg>
         </div>
-        <span className="text-sm font-bold text-white tracking-wide">API Scanner</span>
+        <span className="text-base font-bold text-white tracking-wide">API Scanner</span>
       </div>
 
       {/* Navigation Links */}
-      <nav className="flex-1 px-3 py-4 flex flex-col gap-0.5 overflow-y-auto max-md:flex-row max-md:justify-around max-md:gap-0 max-md:overflow-visible max-md:p-1.5">
+      <nav className="flex-1 px-4 py-6 flex flex-col gap-1 overflow-y-auto max-md:flex-row max-md:justify-around max-md:gap-0 max-md:overflow-visible max-md:p-1.5">
         {navItems.map((item) => (
           <NavLink
             key={item.name}
             to={item.path}
             className={({ isActive }) =>
-              `flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] font-medium transition-colors duration-150 max-md:flex-1 max-md:flex-col max-md:justify-center max-md:gap-1 max-md:px-2 max-md:py-2 max-md:text-[11px] ${
+              `flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-colors duration-150 max-md:flex-1 max-md:flex-col max-md:justify-center max-md:gap-1 max-md:px-2 max-md:py-2 max-md:text-[11px] ${
                 isActive
-                  ? 'bg-[var(--color-primary)]/10 text-[var(--color-primary-light)]'
+                  ? 'bg-[var(--color-primary)]/10 text-[var(--color-primary-light)] font-semibold'
                   : 'text-[var(--color-text-muted)] hover:text-[var(--color-text)] hover:bg-white/[0.04]'
               }`
             }
@@ -72,20 +72,20 @@ const Sidebar = () => {
         ))}
       </nav>
 
-      {/* User Info & Logout */}
-      <div className="px-3 py-3 border-t border-[var(--color-border)] max-md:hidden">
-        <div className="flex items-center gap-2.5 px-2 py-2 mb-2">
-          <div className="w-8 h-8 rounded-full bg-[var(--color-bg-input)] border border-[var(--color-border)] flex items-center justify-center text-xs font-bold text-[var(--color-primary-light)]">
+      {/* User Info & Logout Panel */}
+      <div className="p-4 pb-6 border-t border-[var(--color-border)] max-md:hidden">
+        <div className="flex items-center gap-3 px-2 py-2 mb-3">
+          <div className="w-9 h-9 rounded-full bg-[var(--color-bg-input)] border border-[var(--color-border)] flex items-center justify-center text-xs font-bold text-[var(--color-primary-light)] shrink-0">
             {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
           </div>
           <div className="overflow-hidden flex-1 min-w-0">
-            <p className="text-[13px] font-medium text-white truncate">{user?.name || 'User'}</p>
-            <p className="text-[11px] text-[var(--color-text-muted)] truncate">{user?.email || ''}</p>
+            <p className="text-sm font-semibold text-white truncate">{user?.name || 'User'}</p>
+            <p className="text-xs text-[var(--color-text-muted)] truncate">{user?.email || ''}</p>
           </div>
         </div>
         <button
           onClick={handleLogout}
-          className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-[13px] font-medium text-[var(--color-text-muted)] hover:text-[var(--color-error)] hover:bg-[var(--color-error)]/8 transition-colors duration-150 cursor-pointer"
+          className="w-full flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold text-[var(--color-text-muted)] hover:text-[var(--color-error)] hover:bg-[var(--color-error)]/10 transition-colors duration-150 cursor-pointer border border-[var(--color-border)] hover:border-[var(--color-error)]/30"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.75">
             <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
