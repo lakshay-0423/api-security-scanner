@@ -1,9 +1,12 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { Shield, User, Mail, Lock, Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { useAuth } from '../hooks/useAuth';
 import { registerUser, getMe } from '../services/authService';
+import { useToast } from '../hooks/useToast';
+import Button from '../components/ui/Button';
 
-const Register = () => {
+export const Register = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -15,6 +18,7 @@ const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
+  const toast = useToast();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -54,54 +58,44 @@ const Register = () => {
       localStorage.setItem('token', res.token);
       const userRes = await getMe();
       login(res.token, userRes.data);
+      toast.success('Account created successfully!');
       navigate('/dashboard');
     } catch (err) {
-      setError(err.response?.data?.message || 'Registration failed. Please try again.');
+      const msg = err.response?.data?.message || 'Registration failed. Please try again.';
+      setError(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-8 relative overflow-hidden bg-[var(--color-bg-dark)]">
-      {/* Background Ambient Glow Orbs */}
+    <div className="min-h-screen flex items-center justify-center px-4 py-8 relative overflow-hidden bg-slate-950">
       <div className="absolute -top-32 -left-32 w-96 h-96 rounded-full bg-blue-600/10 blur-3xl pointer-events-none" />
       <div className="absolute -bottom-32 -right-32 w-96 h-96 rounded-full bg-indigo-600/10 blur-3xl pointer-events-none" />
 
       <div className="w-full max-w-sm relative z-10 animate-fade-in">
-        {/* Branding Header */}
         <div className="text-center mb-6">
-          <div className="w-12 h-12 mx-auto rounded-xl bg-[var(--color-primary)] flex items-center justify-center mb-3 text-white shadow-md shadow-blue-500/20">
-            <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-            </svg>
+          <div className="w-12 h-12 mx-auto rounded-2xl bg-blue-600 flex items-center justify-center mb-3 text-white shadow-xl shadow-blue-600/30">
+            <Shield className="w-6 h-6 stroke-[2.5]" />
           </div>
           <h1 className="text-xl font-bold text-white tracking-tight">Create Account</h1>
-          <p className="text-[var(--color-text-muted)] mt-1 text-xs">Get started with API Security Scanner</p>
+          <p className="text-slate-400 mt-1 text-xs">Get started with API Security Scanner</p>
         </div>
 
-        {/* Glass Card Container */}
-        <div className="glass-card p-6 shadow-xl">
+        <div className="glass-card p-6 border border-slate-800 bg-slate-900/90 rounded-2xl shadow-2xl">
           {error && (
-            <div className="mb-4 p-3 rounded-lg bg-[var(--color-error)]/10 border border-[var(--color-error)]/30 text-[var(--color-error)] text-xs flex items-center gap-2">
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <circle cx="12" cy="12" r="10" />
-                <line x1="15" y1="9" x2="9" y2="15" />
-                <line x1="9" y1="9" x2="15" y2="15" />
-              </svg>
+            <div className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 shrink-0" />
               <span>{error}</span>
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-3.5">
-            {/* Full Name */}
             <div className="flex flex-col gap-1.5">
-              <label className="text-[11px] font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">Full Name</label>
+              <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Full Name</label>
               <div className="input-wrapper py-0.5">
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 shrink-0 text-[var(--color-text-muted)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                  <circle cx="12" cy="7" r="4" />
-                </svg>
+                <User className="w-4 h-4 text-slate-400 shrink-0" />
                 <input
                   type="text"
                   name="name"
@@ -113,14 +107,10 @@ const Register = () => {
               </div>
             </div>
 
-            {/* Email */}
             <div className="flex flex-col gap-1.5">
-              <label className="text-[11px] font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">Email Address</label>
+              <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Email Address</label>
               <div className="input-wrapper py-0.5">
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 shrink-0 text-[var(--color-text-muted)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <rect width="20" height="16" x="2" y="4" rx="2" />
-                  <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
-                </svg>
+                <Mail className="w-4 h-4 text-slate-400 shrink-0" />
                 <input
                   type="email"
                   name="email"
@@ -132,14 +122,10 @@ const Register = () => {
               </div>
             </div>
 
-            {/* Password */}
             <div className="flex flex-col gap-1.5">
-              <label className="text-[11px] font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">Password</label>
+              <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Password</label>
               <div className="input-wrapper py-0.5">
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 shrink-0 text-[var(--color-text-muted)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
-                  <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                </svg>
+                <Lock className="w-4 h-4 text-slate-400 shrink-0" />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   name="password"
@@ -151,30 +137,17 @@ const Register = () => {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="shrink-0 text-[var(--color-text-muted)] hover:text-white transition-colors cursor-pointer"
+                  className="shrink-0 text-slate-400 hover:text-white transition-colors"
                 >
-                  {showPassword ? (
-                    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
-                      <line x1="1" y1="1" x2="23" y2="23" />
-                    </svg>
-                  ) : (
-                    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                      <circle cx="12" cy="12" r="3" />
-                    </svg>
-                  )}
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
             </div>
 
-            {/* Confirm Password */}
             <div className="flex flex-col gap-1.5">
-              <label className="text-[11px] font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">Confirm Password</label>
+              <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Confirm Password</label>
               <div className="input-wrapper py-0.5">
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 shrink-0 text-[var(--color-text-muted)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                </svg>
+                <Shield className="w-4 h-4 text-slate-400 shrink-0" />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   name="confirmPassword"
@@ -186,25 +159,14 @@ const Register = () => {
               </div>
             </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="btn-primary w-full py-2.5 justify-center mt-2"
-            >
-              {loading ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  Creating account...
-                </>
-              ) : (
-                'Create Account'
-              )}
-            </button>
+            <Button type="submit" loading={loading} className="w-full mt-2">
+              Create Account
+            </Button>
           </form>
 
-          <p className="text-center text-xs text-[var(--color-text-muted)] mt-5">
+          <p className="text-center text-xs text-slate-400 mt-5">
             Already have an account?{' '}
-            <Link to="/login" className="text-[var(--color-primary-light)] hover:text-[var(--color-primary)] font-semibold transition-colors">
+            <Link to="/login" className="text-blue-400 hover:text-blue-300 font-semibold transition-colors">
               Sign in
             </Link>
           </p>
